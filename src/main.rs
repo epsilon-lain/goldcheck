@@ -77,7 +77,10 @@ fn check_record(value: &Value) -> Result<(), String> {
     }
 
     match obj.get("gold_label") {
-        Some(Value::String(_)) => {}
+        Some(Value::String(s)) if matches!(s.as_str(), "pass" | "fail") => {}
+        Some(Value::String(s)) => {
+            return Err(format!("gold_label must be 'pass' or 'fail', got '{s}'"))
+        }
         Some(_) => return Err("gold_label must be a string".to_string()),
         None => return Err("missing field: gold_label".to_string()),
     }
