@@ -53,14 +53,16 @@ fn main() {
             }
         };
 
-        if let Err(e) = check_record(&value) {
-            eprintln!("line {line_no}: {e}");
-            invalid += 1;
-            continue;
-        }
+        let case_id = match check_record(&value) {
+            Ok(id) => id,
+            Err(e) => {
+                eprintln!("line {line_no}: {e}");
+                invalid += 1;
+                continue;
+            }
+        };
 
-        let case_id = value["case_id"].as_str().unwrap();
-        if !seen.insert(case_id.to_string()) {
+        if !seen.insert(case_id.clone()) {
             eprintln!("line {line_no}: duplicate case_id '{case_id}'");
             invalid += 1;
             continue;
@@ -73,17 +75,17 @@ fn main() {
     println!("{invalid} invalid record(s)");
 }
 
-fn check_record(value: &Value) -> Result<(), String> {
+fn check_record(value: &Value) -> Result<String, String> {
     let obj = value
         .as_object()
         .ok_or_else(|| "must be a JSON object".to_string())?;
 
-    match obj.get("case_id") {
-        Some(Value::String(s)) if !s.trim().is_empty() => {}
+    let case_id = match obj.get("case_id") {
+        Some(Value::String(s)) if !s.trim().is_empty() => s.clone(),
         Some(Value::String(_)) => return Err("case_id must not be empty".to_string()),
         Some(_) => return Err("case_id must be a string".to_string()),
         None => return Err("missing field: case_id".to_string()),
-    }
+    };
 
     match obj.get("gold_label") {
         Some(Value::String(s)) if matches!(s.as_str(), "pass" | "fail") => {}
@@ -94,5 +96,5 @@ fn check_record(value: &Value) -> Result<(), String> {
         None => return Err("missing field: gold_label".to_string()),
     }
 
-    Ok(())
+    Ok(case_id)
 }
