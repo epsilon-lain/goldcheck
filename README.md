@@ -145,8 +145,9 @@ than a large speculative edit.
 Each Kilo Code interaction was paired with its actual Git diff, the
 corresponding Git commit hash, a timestamp, the agent type (Kilo Code), and the
 development language (Rust), serialized as one JSON object per line to form an
-auditable JSONL process record. No commits were created during this work, so the
-diffs remain in the working tree for the user to review and commit.
+auditable JSONL process record. Kilo Code was instructed not to create Git
+commits; after each interaction, the resulting diff was reviewed and committed
+separately, and that commit hash and timestamp were recorded in the JSONL entry.
 
 ### Problems encountered and solutions
 
