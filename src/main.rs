@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use std::env;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
@@ -26,6 +27,7 @@ fn main() {
     let reader = BufReader::new(file);
     let mut valid = 0usize;
     let mut invalid = 0usize;
+    let mut seen = HashSet::new();
 
     for (i, line) in reader.lines().enumerate() {
         let line_no = i + 1;
@@ -53,6 +55,13 @@ fn main() {
 
         if let Err(e) = check_record(&value) {
             eprintln!("line {line_no}: {e}");
+            invalid += 1;
+            continue;
+        }
+
+        let case_id = value["case_id"].as_str().unwrap();
+        if !seen.insert(case_id.to_string()) {
+            eprintln!("line {line_no}: duplicate case_id '{case_id}'");
             invalid += 1;
             continue;
         }
