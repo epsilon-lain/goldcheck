@@ -103,7 +103,7 @@ fn check_record(value: &Value) -> Result<String, String> {
     match obj.get("gold_label") {
         Some(Value::String(s)) if matches!(s.as_str(), "pass" | "fail") => {}
         Some(Value::String(s)) => {
-            return Err(format!("gold_label must be 'pass' or 'fail', got '{s}'"))
+            return Err(format!("gold_label must be 'pass' or 'fail', got '{s}'"));
         }
         Some(_) => return Err("gold_label must be a string".to_string()),
         None => return Err("missing field: gold_label".to_string()),
@@ -185,7 +185,10 @@ mod tests {
     fn empty_line_is_skipped() {
         let mut seen = HashSet::new();
         assert!(matches!(process_line("", 1, &mut seen), Outcome::Skipped));
-        assert!(matches!(process_line("   ", 1, &mut seen), Outcome::Skipped));
+        assert!(matches!(
+            process_line("   ", 1, &mut seen),
+            Outcome::Skipped
+        ));
         assert!(seen.is_empty());
     }
 
