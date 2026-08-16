@@ -1,1 +1,16 @@
 /target
+
+# Erdős #7 research artefacts (references and local outputs)
+research/erdos7/centurion/
+research/erdos7/solver/__pycache__/
+research/erdos7/solver/*.pyc
+research/erdos7/solver/*.json
+research/erdos7/solver/.pytest_cache/
+research/erdos7/solver/pytest-cache-files-*
+research/erdos7/mcnew_setty.pdf
+research/erdos7/mcnew_setty.txt
+research/erdos7/solver/_probe.py
+__pycache__/
+*.pyc
+.pytest_cache/
+pytest-cache-files-*

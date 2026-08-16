@@ -1,0 +1,29 @@
+# Exact non-covering certificates
+
+Each file below records an exact lower bound on the deficiency
+`δ(N) = N − r(N)`, obtained by chaining the proved lemmas in `../NOTES.md`:
+
+* the square-free CRT/Hall bound (McNew–Setty Lemma 4.10), and
+* the deficiency recurrence `δ(p^a M) ≥ p·δ(N/p) − σ(M)`.
+
+A positive lower bound proves the integer is **not** a covering number, hence
+not a counterexample to the Erdős–Selfridge odd covering problem.
+
+| N     | factorisation          | `δ(N) ≥` |
+|-------|------------------------|----------|
+| 945   | 3³ · 5 · 7             | 123      |
+| 10395 | 3³ · 5 · 7 · 11        | 360      |
+| 12285 | 3³ · 5 · 7 · 13        | 606      |
+| 17325 | 3² · 5² · 7 · 11       | 312      |
+
+Independent verification:
+
+```bash
+cd solver
+python -c "from certificate import verify_certificates; print(verify_certificates())"
+pytest test_certificate.py -q
+```
+
+The square-free base values are pure integer arithmetic (no external solver);
+the recurrence is likewise exact integer arithmetic.  The `covering.py` and
+`milp.py` modules provide an independent SAT/MILP cross-check for small `N`.
