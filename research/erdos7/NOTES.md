@@ -566,3 +566,86 @@ This is an elementary counting lemma.  We prove it and verify it exhaustively;
 we do **not** claim novelty, and we have not yet located an exact published
 statement.  It is the intended entry point to the conditioned CRT/Hall profile
 state needed to attack the `ω = 5` survivors.
+
+## 13. BFF 1987: the forest method (Milestone 4)
+
+### 13.1 The forest lemma
+
+If `G` is a forest and `{S_v : v ∈ V(G)}` is any family of finite sets, then
+
+    |⋃_{v∈V} S_v| ≤ Σ_{v∈V} |S_v| − Σ_{uv∈E(G)} |S_u ∩ S_v|.        (F)
+
+*Proof.*  For a point `x` in the union let `k` be the number of sets containing
+it.  Its contribution to the right-hand side is `k − e`, where `e` is the number
+of edges both of whose endpoints contain `x`.  Those `k` vertices induce a
+subforest of `G`, so `e ≤ k − 1`, giving contribution `≥ 1` when `k ≥ 1`, and
+`0` otherwise.  ∎  This is the overlap-subtraction step at the heart of the
+paper; implementation and brute-force checks are in `solver/bff1987.py`.
+
+### 13.2 The audited engine (tasks H2/H3)
+
+The BFF proof applies (F) to the building blocks indexed by **2-subsets** of the
+`n` prime coordinates.  The audited correspondence is:
+
+* vertices: the 2-subsets of `{1, …, n}`;
+* an edge is allowed exactly when the two 2-subsets are disjoint (the Kneser
+  graph `KG(n,2)`);
+* the certified pairwise-overlap weight of an edge `{I, J}` is
+  `∏_{i ∈ I ∪ J} z_i`.
+
+For fixed parameters any forest is admissible, so the strongest correction is a
+maximum-weight spanning tree of `KG(n,2)` (all weights positive, hence a
+spanning tree).  `solver/bff1987.py` implements Kruskal's algorithm in exact
+rational arithmetic together with an independent acyclicity/weight verifier.
+For `n = 5` the maximum tree has `9` edges and weight `13/384`, which exceeds
+the four-term lower bound
+`z_1z_2z_3z_4 + z_1z_2z_3z_5 + z_1z_2z_4z_5 + z_1z_3z_4z_5 = 1/80` extracted in
+the paper's equation (25); the optimized tree is therefore strictly stronger.
+
+### 13.3 The reconstructed necessary polynomial
+
+The paper's theorem is `g(w,z) ≥ 2`, with
+
+    g1(w,z) = (1+w)∏_{i=2}^{n}(1+z_i) − w − (1+w−z_1)Σ_{i=2}^{n} z_i,
+    g = g1 − (forest overlap sum).
+
+Here `N = ∏ p_i^{s_i}` and the variables (and their monotonicity bounds, paper
+(13)/(14)) are
+
+    w < 1/(p_1−2),   z_1 < 1/(p_1(p_1−2)),   z_i < 1/(p_i−3)  (2 ≤ i ≤ n).
+
+`g` is increasing on the paper's domain `w,z_i > 0, w ≥ 3z_1, z_2,z_3 < 1,
+z_4,z_5 < 1/3`, so the worst case is approached at those bounds.  Evaluating
+`g = g1 − F_max` (the optimized forest) at the bound values gives:
+
+| ω | smallest primes | g |
+|---|-----------------|---|
+| 2 | 3,5 | 7/6 |
+| 3 | 3,5,7 | 3/2 |
+| 4 | 3,5,7,11 | 335/192 |
+| 5 | 3,5,7,11,13 | 761/384 < 2 |
+| 6 | 3,5,7,11,13,17 | 4889/2240 > 2 |
+| 7 | 3,5,7,11,13,17,19 | 34095/14336 > 2 |
+
+Hence `g < 2` for every odd support with at most five primes, reproducing the
+published `ω(N) ≥ 6`; and `g > 2` for the smallest six-prime support, so the
+optimized forest condition does **not** exclude `ω = 6`.
+
+### 13.4 Status and confidence
+
+The forest lemma, the Kneser-graph engine, the maximum-weight spanning tree, and
+the independent verifier are exact and fully tested.  The polynomial `g1`, the
+parameter bounds, and the worst-case values above were reconstructed by OCR from
+the scanned PDF and then **validated by reproducing the published `ω ≥ 6`
+result**; the exact closed-form equations (9)/(15) and the precise edge set of
+the paper's Figure 1 should still be re-audited against a clean typeset copy
+before they are quoted as verbatim transcription.  No novelty is claimed: this
+is a reformulation/reproduction of Berger–Felzenbaum–Fraenkel 1987.
+
+### 13.5 The next bottleneck (tasks H4/H5)
+
+Because `g(3,5,7,11,13,17) = 4889/2240 > 2`, the pairwise forest correction is
+exhausted at `ω = 6`; it cannot force `ω ≥ 7`.  The next step is a higher-order
+acyclic-overlap correction (junction-tree / hypertree inclusion–exclusion, or a
+dual certificate weighting triple intersections), using the `k = 6` corner
+`{3,5,7,11,13,17}` as the discovery instance.

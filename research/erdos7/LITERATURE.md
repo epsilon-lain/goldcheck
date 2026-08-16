@@ -109,6 +109,14 @@ every odd covering number has `ω(n) ≥ 5` is already the 1986 result, and the
 1987 result (`ω(n) ≥ 6`) is strictly stronger than anything derivable from the
 direct McNew–Setty Lemma 4.10 bound alone.
 
+The 1987 theorem is `g(w, z) ≥ 2` for the `(n+1)`-variate polynomial built from
+the direct product-set union bound and a **forest** overlap correction; the
+proof uses the forest inequality
+`|⋃ S_v| ≤ Σ|S_v| − Σ_{uv∈E}|S_u∩S_v|` on the 2-subsets of the prime
+coordinates.  We audited the scanned PDF directly and reconstructed this engine
+in `solver/bff1987.py` (see `NOTES.md` Section 13); the reconstruction is
+validated by reproducing the published `ω ≥ 6`, not claimed as new.
+
 ## 4. Classification of the facts used in this repository
 
 ### 4.1 Exact published theorem
@@ -150,6 +158,11 @@ direct McNew–Setty Lemma 4.10 bound alone.
 * **Five-prime large-prime family** (`q ≥ 23`): proved from the full form by
   the same monotonicity machinery.  A straightforward consequence of Lemma
   4.10, and **subsumed** by Berger–Felzenbaum–Fraenkel 1987 (`ω ≥ 6`).
+
+* **Forest reformulation of BFF 1987**: the Kneser-graph / maximum-weight
+  spanning-tree overlap engine in `solver/bff1987.py`.  This is an equivalent
+  reformulation (with an exact rational verifier) of the forest step in the
+  published paper, **not** a new theorem.
 
 ### 4.3 Apparently unpublished / folklore-adjacent observation
 
