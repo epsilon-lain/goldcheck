@@ -236,14 +236,12 @@ come from McNew–Setty Lemma 4.10 (an inclusion–exclusion CRT theorem) and th
 recurrence is a fully proved counting lemma.  The three targets are therefore
 rigorously excluded.
 
-The obvious bottleneck is that the recurrence still charges the top layer its
-**raw** capacity `σ(M)`.  For the stragglers `σ(M)` is just small enough for
-the chain to remain positive; to push past the next odd abundant candidates and
-towards an infinite family, `σ(M)` must be replaced by a sharper CRT/Hall
-capacity that accounts for forced overlaps.  The square-free bound (∗) is
-exactly such a sharpening for the square-free case; the missing ingredient is a
-multi-prime-power version of Lemma 4.10 that also corrects the `σ(M)` term of
-the recurrence.
+*Update (Milestone 3 pivot).*  The "missing" multi-prime-power ingredient is
+supplied by McNew–Setty equation (10) itself, evaluated on the **full** divisor
+set `D_{>1}(n)`; see Section 8.  It directly kills `51975` and, in fact, every
+odd `n` with `ω(n) ≤ 4` (Section 9), so the specific `51975` bottleneck is
+retired.  The remaining frontier is `ω(n) ≥ 5` (and, from the published
+literature, `ω(n) ≥ 6`), see Sections 10–11.
 
 No finite search is claimed to resolve the open problem.
 
@@ -322,13 +320,200 @@ Lemma 4.10 symbolically as an affine form in a free prime `q`, applies the
 recurrence one prime-power step at a time, and checks the Section 6 criterion to
 mark an exponent as free.  See `INFINITE_FAMILIES.md` for the clustered output.
 
-### Smallest surviving primitive-candidate pattern (Task E)
+### Smallest surviving primitive-candidate pattern (Task E — corrected)
 
-Intersecting the all-primes necessary condition
-`p_i ≤ τ(N/p_i^{v_p(N)})` with the current deficiency bounds leaves
+The previous claim that `51975 = 3^3 · 5^2 · 7 · 11` is the smallest survivor
+is **obsolete**.  The full divisor-set bound (Section 8) certifies
+`δ(51975) ≥ 4295`, so `51975` is not a covering number.  The corrected frontier
+is recorded in Section 11: the smallest odd `ω = 5` candidate that passes the
+necessary filters and is not excluded by the direct Lemma 4.10 bound is
 
-    51975 = 3^3 · 5^2 · 7 · 11
+    70945875 = 3^4 · 5^3 · 7^2 · 11 · 13.
 
-as the smallest odd, abundant, non-square-free exponent pattern that (a) passes
-the all-primes filter and (b) is **not** excluded by the current recurrence /
-Lemma 4.10 bounds (`δ_lower = 0`).  This is the next concrete bottleneck.
+## 8. The full prime-power form of Lemma 4.10
+
+### Source and statement
+
+McNew–Setty equation (10) applies Lemma 4.10 to the **full** set `D_{>1}(n)`
+of divisors of `n` larger than 1.  For
+
+    n = ∏_{i=1}^{k} p_i^{a_i},
+    x_i = Σ_{j=1}^{a_i} p_i^{-j} = (1 − p_i^{-a_i})/(p_i − 1),
+    C_m = Σ_{t=1}^{m} (−1)^{t+1} S2(m, t),
+
+the bound is
+
+    r(n)/n ≤ R(n) := Σ_{∅≠U⊆[k]} C_|U| ∏_{i∈U} x_i.
+
+### Derivation
+
+A pairwise-coprime subfamily of `D_{>1}(n)` has pairwise disjoint prime
+supports, so it is exactly a set partition of a nonempty support `U ⊆ [k]` into
+nonempty blocks, one divisor per block.  For a fixed block `B`, summing `1/d`
+over all exponent choices on that block factorises as `∏_{i∈B} x_i`, while
+`lcm` of a coprime family is the product of its moduli.  Grouping by `U` and by
+the number `t` of blocks gives the coefficient
+`C_|U| = Σ_t (−1)^{t+1} S2(|U|,t)`; the sign is the inclusion–exclusion sign of
+Lemma 4.10.  Hence
+
+    δ(n) = n − r(n) ≥ n·(1 − R(n)),
+
+and `n·R(n)` is always an integer (Lemma 4.10 gives an integer coverage bound).
+
+The first coefficients are `C_1 = 1, C_2 = 0, C_3 = −1, C_4 = −1, C_5 = 2,
+C_6 = 9, C_7 = 9, C_8 = −50, …`.  In particular, for `k = 4`,
+
+    R = e_1 − e_3 − e_4,
+
+where `e_j` is the `j`-th elementary symmetric polynomial in `x_1,…,x_k`.
+Implementation: `solver/full_bound.py::support_R`, cross-checked against the
+independent divisor-sum form `solver/full_bound.py::divisor_R`.
+
+### The `51975` certificate
+
+For `51975 = 3^3 · 5^2 · 7 · 11`:
+
+    x_3 = 13/27,  x_5 = 6/25,  x_7 = 1/7,  x_11 = 1/11,
+    R(51975) = e_1 − e_3 − e_4 = 9536/10395 < 1,
+    δ(51975) ≥ 51975 · (1 − 9536/10395) = 4295.
+
+See `certificates/51975.md`.
+
+## 9. Every odd `n` with `ω(n) ≤ 4` is non-covering
+
+### Statement
+
+If `n` is odd and `ω(n) ≤ 4`, then `R(n) < 1`, hence `δ(n) > 0` and `n` is not
+a covering number.  Equivalently, any odd covering number has at least five
+distinct prime factors.
+
+### Proof (monotonicity)
+
+Write `k = ω(n)`.  For `k ≤ 4`, `R = e_1` (`k = 1,2`), `e_1 − e_3` (`k = 3`),
+or `e_1 − e_3 − e_4` (`k = 4`).
+
+**Coordinatewise monotonicity.**  Each `x_i` lies in `(0, 1/(p_i−1)]`; for four
+distinct odd primes the three largest possible `x`-values are at most
+`1/2, 1/4, 1/6`.  For `k = 4`,
+
+    ∂R/∂x_i = 1 − e_2(rest) − e_3(rest),
+
+where `rest` is the other three variables.  Since
+`e_2 ≤ 1/2·1/4 + 1/2·1/6 + 1/4·1/6 = 1/4` and `e_3 ≤ 1/2·1/4·1/6 = 1/48`,
+
+    ∂R/∂x_i ≥ 1 − 1/4 − 1/48 = 35/48 > 0.
+
+So `R` is nondecreasing in every variable (the `k ≤ 3` cases are similar), and
+its maximum is attained at infinite exponents with the smallest odd primes.
+
+**Exact limits.**  For the smallest odd primes and infinite exponents:
+
+| ω | primes | R limit |
+|---|--------|---------|
+| 1 | 3 | 1/2 |
+| 2 | 3,5 | 3/4 |
+| 3 | 3,5,7 | 43/48 |
+| 4 | 3,5,7,11 | 31/32 |
+
+All are `< 1`, so `R(n) < 1` for every odd `n` with `ω(n) ≤ 4`.  ∎
+
+### Provenance
+
+This exact consequence is **already published**: Berger–Felzenbaum–Fraenkel,
+*Necessary condition for the existence of an incongruent covering system with
+odd moduli*, Acta Arith. **45** (1986) 375–379 (Zbl 0533.10001), proves at least
+**five** distinct prime factors.  We record our derivation only as a
+self-contained route through McNew–Setty Lemma 4.10; we do **not** claim
+novelty.
+
+## 10. Five-prime large-prime family (direct-bound monotonicity)
+
+### Statement
+
+Let `p_1,…,p_4` be four distinct odd primes, let `q ≥ 23` be a prime distinct
+from them, and let `a_1,…,a_4, b ≥ 1` be arbitrary.  Then
+
+    n = p_1^{a_1} ⋯ p_4^{a_4} · q^b
+
+is **not** a covering number.
+
+### Proof
+
+For `k = 5`, `R = e_1 − e_3 − e_4 + 2 e_5`.  Write the fifth variable as `y`
+and the other four as `x_1,…,x_4`, with elementary symmetric polynomials
+`E_j` in the four `x`'s.  Then
+
+    R(x_1,…,x_4, y) = (E_1 − E_3 − E_4) + y·(1 − E_2 − E_3 + 2 E_4).
+
+Set `m = (1/2, 1/4, 1/6, 1/10)` and `B = [0,1/2]×[0,1/4]×[0,1/6]×[0,1/10]`.
+For four distinct odd primes and `q ≥ 23`, the sorted values
+`x_1,…,x_4, y` fit in `B × [0,1/22]`, because the four largest possible
+`1/(p−1)` values are `1/2,1/4,1/6,1/10` and `y < 1/(q−1) ≤ 1/22`.
+
+**Monotonicity.**  For any coordinate `x_i`, with `g` defined on the "other
+four" variables by `g = 1 − E_2 − E_3 + 2E_4`,
+
+    ∂R/∂x_i = g(other four),  ∂R/∂y = g(x_1,…,x_4).
+
+It suffices to show `g ≥ 0` on `B`.  For a variable `z_1` of `g`,
+
+    ∂g/∂z_1 = −(z_2+z_3+z_4) − (z_2z_3+z_2z_4+z_3z_4) + 2 z_2 z_3 z_4 ≤ 0,
+
+since `z_2,z_3,z_4 ≥ 0` and each is `≤ 1/2`, so `2 z_2 z_3 z_4 ≤ z_2 z_3`.
+Thus `g` is nonincreasing in each coordinate and its minimum on `B` is at the
+corner `m`.  There
+
+    g(m) = 1 − E_2(m) − E_3(m) + 2E_4(m)
+         = 1 − 41/120 − 11/240 + 1/240 = 37/60 > 0.
+
+Therefore `R` is nondecreasing in each of its five coordinates on
+`B × [0,1/22]`, and its maximum there is
+
+    R(1/2, 1/4, 1/6, 1/10, 1/22) = 5263/5280 < 1.
+
+Consequently `R(n) ≤ 5263/5280 < 1`, so `δ(n) ≥ n·17/5280 ≥ 1`.  ∎
+
+### Provenance
+
+This is a straightforward consequence of McNew–Setty Lemma 4.10/equation (10)
+plus an elementary monotonicity estimate.  It is **subsumed** by the published
+result of Berger–Felzenbaum–Fraenkel, *…II*, Acta Arith. **48** (1987) 73–79
+(Zbl 0623.10004), which proves at least **six** distinct prime factors; we
+include it as a self-contained illustration of the direct-bound method, not as
+a new fact.
+
+## 11. Corrected survivor frontier and next bottleneck
+
+Intersecting the necessary filters — all-primes primitive condition
+`p_i ≤ τ(N/p_i^{v_p(N)})` and abundance `σ(N) > 2N` — with the direct bound
+`R(N) ≥ 1` (i.e. the bound does **not** certify positive deficiency) gives:
+
+* every odd `N` with `ω(N) ≤ 4` is excluded (Section 9);
+* every odd `N` with `ω(N) = 5` whose largest prime is `≥ 23` is excluded
+  (Section 10), so a surviving five-prime support must be drawn from
+  `{3,5,7,11,13,17,19}`.
+
+An exact search over those 21 supports (exponents enumerated up to the running
+minimum, so the result is a genuine minimum) finds
+
+    70945875 = 3^4 · 5^3 · 7^2 · 11 · 13,
+    R(70945875) = 876698/875875 ≈ 1.00094,
+
+as the smallest odd `ω = 5` candidate that passes all three filters.
+`solver/full_bound.py::smallest_omega5_survivor` computes it.
+
+This is **not** a claim that `70945875` is a covering number: it only means the
+direct Lemma 4.10 bound does not exclude it, and no finite search resolves the
+open problem.
+
+### The genuine mathematical bottleneck
+
+The published literature already gives `ω(n) ≥ 6` for an odd distinct covering
+system (Berger–Felzenbaum–Fraenkel 1987).  The direct Lemma 4.10 bound is
+exhausted at `ω ≤ 4`: its infinite-exponent limits are `1469/1440` (`ω = 5`)
+and `32323/30720` (`ω = 6`), both `> 1`, so it can never exclude a general
+five- or six-prime support by itself.  The next bottleneck is therefore to
+**replace or sharpen the direct union bound** for the `ω = 5` survivors (and
+then `ω = 6`) with the conditioned top-layer CRT/Hall profile machinery of the
+Milestone 3 brief (Task F1–F4), or another method, in order to reproduce or go
+beyond the published `ω ≥ 6` result.

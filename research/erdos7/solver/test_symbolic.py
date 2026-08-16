@@ -82,7 +82,9 @@ def test_all_primes_condition():
     assert all_primes_condition([3, 5, 7, 11], {3: 3, 5: 1, 7: 1, 11: 1})
 
 
-def test_surviving_candidates_smallest_is_51975():
+def test_scalar_bound_survivor_is_51975():
+    # This is the survivor under the *chained scalar* bound only; the full
+    # prime-power Lemma 4.10 bound excludes 51975 (see test_full_bound.py).
     survivors = surviving_candidates([3, 5, 7, 11], 5)
     assert survivors
     N, exps = survivors[0]

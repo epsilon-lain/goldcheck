@@ -313,11 +313,16 @@ def surviving_candidates(
     primes: list[int],
     max_exponent: int,
 ) -> list[tuple[int, dict[int, int]]]:
-    """Enumerate primitive-candidate exponent patterns not killed by current bounds.
+    """Enumerate primitive-candidate patterns not killed by the *scalar* bounds.
 
     A pattern survives if (a) the all-primes necessary condition holds and
-    (b) the supplied certified deficiency lower bound is 0 (so current
-    inequalities do not prove the number is non-covering).
+    (b) the chained recurrence lower bound ``delta_lower_fixed`` is 0 (so the
+    scalar recurrence + square-free Lemma 4.10 bound does not prove the number
+    is non-covering).
+
+    This is the Milestone 2 scalar frontier only.  The full prime-power form of
+    Lemma 4.10 (``full_bound.py``) is strictly stronger and supersedes it; use
+    ``full_bound.smallest_omega5_survivor`` for the corrected frontier.
     """
     survivors: list[tuple[int, dict[int, int]]] = []
     def rec(idx: int, exps: dict[int, int]) -> None:

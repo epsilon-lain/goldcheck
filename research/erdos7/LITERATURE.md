@@ -24,6 +24,14 @@ Two landmark partial results are cited throughout the literature:
   square-free.  Combining the two results, any odd covering lcm would have to
   be divisible by 9 or 15.
 
+* **Berger–Felzenbaum–Fraenkel**, *Necessary condition for the existence of an
+  incongruent covering system with odd moduli*, Acta Arith. **45** (1986)
+  375–379 (Zbl 0533.10001): an odd distinct covering system has at least
+  **five** distinct prime factors.  The sequel *… II*, Acta Arith. **48**
+  (1987) 73–79 (Zbl 0623.10004), proves at least **six** distinct prime
+  factors.  These are the current published frontier facts for the
+  non-square-free odd case.
+
 * **Bispels–Cohen–Harrington–Lowrance–Pontes–Schaumann–Wong**, *A further
   investigation on covering systems with odd moduli*, Discrete Math. **349**
   (2026) 115013 (arXiv:2507.16135).  This treats repeated-modulus variants and
@@ -83,6 +91,24 @@ covers `[0, N)`.  The repository uses this to exclude all 23 odd abundant
 `10395`, `12285`, `17325` are the first odd abundant numbers **above** 10000 and
 are **not** closed by that certificate alone.
 
+### 3.4 Berger–Felzenbaum–Fraenkel odd-moduli necessary conditions
+
+* **Berger, M. A., Felzenbaum, A., Fraenkel, A. S.**, *Necessary condition for
+  the existence of an incongruent covering system with odd moduli*, Acta Arith.
+  **45** (1986), 375–379 (Zbl 0533.10001).  Proves that an incongruent covering
+  system with all moduli odd must have at least **five** distinct prime factors.
+
+* **Berger, M. A., Felzenbaum, A., Fraenkel, A. S.**, *Necessary condition for
+  the existence of an incongruent covering system with odd moduli II*, Acta
+  Arith. **48** (1987), 73–79 (Zbl 0623.10004).  Proves at least **six**
+  distinct prime factors.
+
+These two papers are the current published frontier for the (not necessarily
+square-free) odd distinct case.  In particular, our full-bound corollary that
+every odd covering number has `ω(n) ≥ 5` is already the 1986 result, and the
+1987 result (`ω(n) ≥ 6`) is strictly stronger than anything derivable from the
+direct McNew–Setty Lemma 4.10 bound alone.
+
 ## 4. Classification of the facts used in this repository
 
 ### 4.1 Exact published theorem
@@ -92,6 +118,8 @@ are **not** closed by that certificate alone.
 * Mian–Siddique capacity certificate (`capacity_exclusion`).
 * Hough–Nielsen restricted-divisibility theorem.
 * Balister–Bollobás–Morris–Sahasrabudhe–Tiba square-free exclusion.
+* Berger–Felzenbaum–Fraenkel 1986 (`ω ≥ 5` for odd distinct coverings).
+* Berger–Felzenbaum–Fraenkel 1987 (`ω ≥ 6` for odd distinct coverings).
 
 ### 4.2 Straightforward consequence
 
@@ -109,6 +137,19 @@ are **not** closed by that certificate alone.
 
   where `S2` is the Stirling number of the second kind.  This is Lemma 4.10
   evaluated on the full divisor set `D_{>1}(n)`; see `NOTES.md`.
+
+* **Full prime-power form of Lemma 4.10** (`R(n) = Σ_U C_|U| ∏_{i∈U} x_i`):
+  a direct grouping of McNew–Setty equation (10) by prime support; see
+  `NOTES.md` Section 8.  It is a reformulation, not a new theorem.
+
+* **Every odd `n` with `ω(n) ≤ 4` is non-covering**: proved from the full
+  form by a monotonicity argument.  This is a straightforward consequence of
+  Lemma 4.10, and it is **subsumed** by Berger–Felzenbaum–Fraenkel 1986
+  (`ω ≥ 5`); we do not claim novelty.
+
+* **Five-prime large-prime family** (`q ≥ 23`): proved from the full form by
+  the same monotonicity machinery.  A straightforward consequence of Lemma
+  4.10, and **subsumed** by Berger–Felzenbaum–Fraenkel 1987 (`ω ≥ 6`).
 
 ### 4.3 Apparently unpublished / folklore-adjacent observation
 
@@ -128,6 +169,9 @@ are **not** closed by that certificate alone.
 ## 5. What this repository does *not* claim
 
 No finite computation is used to claim the open problem is solved.  The three
-certificates only show that `10395`, `12285`, and `17325` are not covering
-numbers; the next bottleneck is turning the raw `σ(M)` term in the recurrence
-into a sharper CRT/Hall capacity (see `NOTES.md`).
+certificates only show that `10395`, `12285`, `17325`, and (via the full bound)
+`51975` are not covering numbers.  The direct Lemma 4.10 bound proves the
+published `ω ≥ 5` consequence (`ω ≤ 4` is impossible) but does **not** reach the
+published `ω ≥ 6` result; the current frontier and next bottleneck are the
+`ω = 5` survivors of the direct bound, beginning with
+`70945875 = 3^4 · 5^3 · 7^2 · 11 · 13` (see `NOTES.md` Section 11).

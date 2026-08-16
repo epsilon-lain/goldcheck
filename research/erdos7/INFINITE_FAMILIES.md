@@ -101,33 +101,68 @@ recurrence) via `InfiniteFamily.derivation`.
 The miner is not limited to `{3,5,7}`: any square-free kernel can be passed in,
 and the base Lemma 4.10 bound is recomputed symbolically.
 
-## 5. Connection to primitive constraints (Task E)
+## 5. Corrected primitive frontier (full Lemma 4.10 bound)
 
 The all-primes necessary condition for a primitive covering number
 `N = ∏ p_i^{a_i}` is
 
     p_i ≤ τ(N / p_i^{a_i}) = ∏_{j ≠ i} (a_j + 1).
 
-Intersecting this filter with the certified deficiency lower bounds
-(`δ_lower`) gives the surviving primitive-candidate patterns — those that pass
-the necessary condition but are **not** yet killed by our inequalities.  For
-the small odd kernels:
+Milestone 2 intersected this filter with the *chained* recurrence bounds and
+reported `51975 = 3^3·5^2·7·11` as the smallest survivor.  That conclusion is
+**obsolete**.  The Milestone 3 pivot evaluates McNew–Setty Lemma 4.10/equation
+(10) on the **full** divisor set `D_{>1}(n)`, giving the bound
 
-| kernel | exponent bound | # survivors | smallest survivor |
-|---|---|---|---|
-| `3,5,7` | 5 | 27 | `3^4·5^3·7^2 = 496125` |
-| `3,5,7,11` | 5 | 463 | `3^3·5^2·7·11 = 51975` |
-| `3,5,7,13` | 5 | 436 | `3^3·5^2·7·13 = 61425` |
-| `3,5,7,11,13` | 3 | 158 | `3^3·5·7·11·13 = 135135` |
+    r(n)/n ≤ R(n) = Σ_{∅≠U⊆[k]} C_|U| ∏_{i∈U} x_i,
+    x_i = (1 − p_i^{-a_i})/(p_i − 1),   C_m = Σ_{t=1..m} (−1)^{t+1} S2(m,t).
 
-The **smallest** surviving odd primitive candidate is
+This full bound (a) excludes every odd `n` with `ω(n) ≤ 4`, and (b) certifies
+`δ(51975) ≥ 4295` and `δ(496125) ≥ 57006`, `δ(61425) ≥ 5733`,
+`δ(135135) ≥ 8557`, so all four former "smallest survivors" are non-covering.
 
-    51975 = 3^3 · 5^2 · 7 · 11.
+### 5.1 The true smallest `ω = 5` survivor of the direct bound
 
-It is odd, abundant, divisible by 9 and 15, satisfies the all-primes condition,
-and has `δ_lower = 0` under the current recurrence + Lemma 4.10 bounds.  This is
-the next mathematical bottleneck: the raw `σ(M)` top-layer capacity is exactly
-what still has to be sharpened (Task F).
+After intersecting the necessary filters (all-primes condition and abundance
+`σ(N) > 2N`) with the full bound `R(N) ≥ 1`, the smallest surviving odd
+candidate is
+
+    70945875 = 3^4 · 5^3 · 7^2 · 11 · 13,   R = 876698/875875 ≈ 1.00094.
+
+This is a **genuine minimum** over all five-prime supports, by two proved facts
+(see `NOTES.md` Sections 10–11 and `solver/full_bound.py`):
+
+1. any odd `n` with `ω(n) ≤ 4` is excluded by the full bound;
+2. any odd `n` with `ω(n) = 5` whose largest prime is `≥ 23` is excluded by the
+   full bound, so only the 21 five-prime supports inside
+   `{3,5,7,11,13,17,19}` can survive, and they are searched exhaustively with
+   exponent pruning by the running minimum.
+
+This is a statement about the **direct union bound**, not about covering: it
+only means the direct Lemma 4.10 bound does not exclude `70945875`.
+
+## 5.5 Five-prime large-prime family (full bound, monotonicity)
+
+**Theorem.**  Let `p_1,…,p_4` be four distinct odd primes, let `q ≥ 23` be a
+prime distinct from them, and let `a_1,…,a_4, b ≥ 1`.  Then
+
+    n = p_1^{a_1} ⋯ p_4^{a_4} · q^b   is not a covering number.
+
+*Proof sketch.*  For five variables `R = e_1 − e_3 − e_4 + 2e_5`.  Writing the
+fifth variable as `y` and `E_j` for the elementary symmetric polynomials of the
+other four,
+
+    R = (E_1 − E_3 − E_4) + y·(1 − E_2 − E_3 + 2E_4).
+
+`R` is coordinatewise nondecreasing on `[0,1/2]×[0,1/4]×[0,1/6]×[0,1/10]×[0,1/22]`
+because `g = 1 − E_2 − E_3 + 2E_4 ≥ 37/60 > 0` on the four-variable box.  Its
+maximum there is
+
+    R(1/2, 1/4, 1/6, 1/10, 1/22) = 5263/5280 < 1,
+
+so `δ(n) ≥ n·17/5280 ≥ 1`.  Full proof: `NOTES.md` Section 10.  This family is
+a straightforward consequence of McNew–Setty Lemma 4.10 and is **subsumed** by
+Berger–Felzenbaum–Fraenkel 1987 (`ω ≥ 6`); it is included as an independent,
+self-contained derivation, not as a new fact.
 
 ## 6. Classification
 
@@ -137,10 +172,15 @@ what still has to be sharpened (Task F).
 | deficiency recurrence `δ(p^a M) ≥ p δ(p^{a−1}M) − σ(M)` | elementary; folklore-adjacent, proved in `NOTES.md` |
 | power-lifting criterion | straightforward consequence of the recurrence; apparently unpublished |
 | Families B, C and the miner families | straightforward consequences of Lemma 4.10 + the recurrence; apparently unpublished |
+| full prime-power form `R(n) = Σ C_|U| ∏ x_i` | reformulation of McNew–Setty equation (10); `NOTES.md` Section 8 |
+| every odd `n` with `ω(n) ≤ 4` is non-covering | straightforward consequence of Lemma 4.10; subsumed by Berger–Felzenbaum–Fraenkel 1986 (`ω ≥ 5`) |
+| five-prime large-prime family (`q ≥ 23`) | straightforward consequence of Lemma 4.10; subsumed by Berger–Felzenbaum–Fraenkel 1987 (`ω ≥ 6`) |
 
 No family here is claimed to be new without that qualification: the heavy
 capacity result is McNew–Setty's, and our contribution is the explicit
-exponent-lifting extraction.
+exponent-lifting extraction.  The full-bound consequences are likewise recorded
+as consequences of the published bound, not as new theorems; the published
+`ω ≥ 5` (1986) and `ω ≥ 6` (1987) results are strictly stronger.
 
 ## 7. Counterexample / falsification search
 
@@ -149,8 +189,10 @@ exponent-lifting extraction.
 * Families B and C were checked with `delta_lower_fixed` for
   `a,b ∈ {1,…,6}` and `q ∈ {11,13,17,19,23,29,31,37}`; all lower bounds are
   `≥ 1` (see `solver/test_symbolic.py`).
-* The surviving-candidate search covered the small odd kernels listed in
-  Section 5 with the stated exponent bounds.
+* The five-prime corner bound `R(1/2,1/4,1/6,1/10,1/22) = 5263/5280` and the
+  monotonicity assertions are checked in `solver/test_full_bound.py`.
+* The `ω = 5` survivor search is exhaustive over the 21 supports in
+  `{3,5,7,11,13,17,19}` with exponent pruning; it returns `70945875`.
 
 ## 8. Exact commands and runtimes
 
@@ -158,8 +200,8 @@ From `goldcheck/research/erdos7/solver`:
 
 ```bash
 python -m pytest -q -p no:cacheprovider
-# 119 passed in 1.15s
+# 145 passed in 2.33s
 
 python -c "from symbolic import mine_families; mine_families([3,5,7], max_exponent=4)"
-python -c "from symbolic import surviving_candidates; print(surviving_candidates([3,5,7,11], 5)[0])"
+python -c "from full_bound import smallest_omega5_survivor; print(smallest_omega5_survivor())"
 ```
