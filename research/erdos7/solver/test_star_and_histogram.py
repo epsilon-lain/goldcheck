@@ -4,10 +4,13 @@ from fractions import Fraction
 
 from profile_histogram import (
     brute_force_joint_count,
+    brute_transition,
     crt_combine,
     histogram,
+    histograms,
     joint_intersection_count,
     top_lifts_joint_count,
+    transition_step,
 )
 from star_collision import (
     disjoint_pair_sum,
@@ -89,3 +92,32 @@ def test_top_lifts_joint_count_matches_profile():
     count = top_lifts_joint_count(U, p, a, lower_period, [(3, 0)])
     # bases u with u ≡ 0 mod 3, each contributes exactly one lift.
     assert count == len([u for u in U if u % 3 == 0])
+
+
+def test_lcm_histogram_transition_lemma():
+    # U = Z/12Z, D = lcm-closed divisors of 12.
+    U = list(range(12))
+    D = [1, 2, 3, 4, 6, 12]
+    hists = histograms(U, D)
+    for m in (2, 3, 4, 6):
+        for r in range(m):
+            got = transition_step(hists, D, m, r)
+            expected = brute_transition(U, D, m, r)
+            for d in D:
+                got_nonzero = {b: c for b, c in got[d].items() if c != 0}
+                assert got_nonzero == expected[d], (m, r, d, got[d], expected[d])
+
+
+def test_transition_requires_lcm_closure():
+    U = list(range(12))
+    D = [1, 2, 3, 4, 6, 12]
+    hists = histograms(U, D)
+    # lcm(4, 6) = 12 is present; this should work.
+    transition_step(hists, D, 6, 1)
+    # A non-closed set must raise.
+    bad = [1, 2, 3, 4, 6]  # missing lcm(4,6)=12
+    try:
+        transition_step({d: histogram(U, d) for d in bad}, bad, 6, 1)
+        assert False, "expected lcm-closure error"
+    except ValueError:
+        pass

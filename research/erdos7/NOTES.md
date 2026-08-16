@@ -871,3 +871,45 @@ joint lcm-bin histogram is the exact next state.  The full K3 atom-state LP
 (pricing triples/quadruples through `y_{i,T}`) remains a larger exact
 computation; the star-pair bound above already dominates its pair-level
 contribution.
+
+## 17. The lcm-histogram transition lemma (Milestone 8, L2)
+
+The scalar profile `μ_d(U)` of Task F1 loses information because it forgets
+which bins are CRT-compatible with an added lower-layer class.  The exact
+Markovian state is the lcm-closed histogram family.
+
+### Statement
+
+Let `D` be an lcm-closed set of divisors of a period `L`, let `U ⊆ Z/LZ`, and
+store `h_d(b; U) = |{u∈U : u ≡ b (mod d)}|` for every `d ∈ D`.  Suppose the
+lower-layer class `r mod m` is added and `U' = U \ {x : x ≡ r (mod m)}`.  Then,
+for every `d ∈ D` and `b mod d`:
+
+* if `b` and `r` are CRT-incompatible (i.e. `b ≢ r (mod gcd(d, m))`), then
+  `h'_d(b) = h_d(b)`;
+* if compatible, let `c mod lcm(d, m)` be their unique CRT class; then
+  `h'_d(b) = h_d(b) − h_{lcm(d,m)}(c)`.
+
+### Proof
+
+The elements removed from the bin `b mod d` are exactly those `x ∈ U` with
+`x ≡ b (mod d)` **and** `x ≡ r (mod m)`.  This pair of congruences has a
+solution only in the compatible case, and then its solutions are exactly one
+residue class `c mod lcm(d, m)`.  The count of such elements is therefore
+`h_{lcm(d,m)}(c)`.  ∎
+
+The point of retaining `lcm(d, m)` (hence the lcm-closure of `D`) is exactly
+that this single number is what the transition needs; with it the histogram
+state is updated exactly, without enumerating the points of `U`.
+Implementation and brute-force validation: `solver/profile_histogram.py`
+(`histograms`, `transition_step`, `brute_transition`).
+
+### Milestone 8 status
+
+The L2 transition lemma above is proved and tested.  The full L1 K3 atom-state
+LP (pricing every pair/triple/quadruple overlap at coordinate `i` through the
+same `32`-atom distribution) is formulated in Section 16.1 but remains a large
+exact computation; the star-pair bound of Section 16.2 is a rigorous lower
+bound on its correction.  The next concrete steps are: solve/dualize the full
+K3 LP, then use the L2 transition to build the first histogram-state profile
+optimizer (L3) on the smallest surviving six-prime seed.

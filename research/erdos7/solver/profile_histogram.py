@@ -88,11 +88,58 @@ def top_lifts_joint_count(
     return joint_intersection_count(U, projected)
 
 
+def histograms(U: list[int], D: list[int]) -> dict[int, dict[int, int]]:
+    """All histograms ``h_d`` for ``d in D`` (``D`` should be lcm-closed)."""
+    return {d: histogram(U, d) for d in D}
+
+
+def transition_step(
+    hists: dict[int, dict[int, int]],
+    D: list[int],
+    m: int,
+    r: int,
+) -> dict[int, dict[int, int]]:
+    """Exact histogram transition under removing the lower class ``r mod m``.
+
+    For every ``d in D`` and residue ``b mod d``:
+
+    * if ``b mod d`` and ``r mod m`` are CRT-incompatible, ``h_d(b)`` is
+      unchanged;
+    * otherwise, with ``c mod lcm(d, m)`` their unique CRT class,
+      ``h'_d(b) = h_d(b) - h_{lcm(d,m)}(c)``.
+
+    ``D`` must contain ``lcm(d, m)`` for every ``d in D`` (lcm-closure).
+    """
+    new = {d: dict(hists[d]) for d in D}
+    for d in D:
+        L = lcm(d, m)
+        if L not in hists:
+            raise ValueError(f"histogram set is not closed under lcm({d},{m})")
+        g = gcd(d, m)
+        for b in list(new[d].keys()):
+            if b % g != r % g:
+                continue
+            combined = crt_combine([(d, b), (m, r)])
+            assert combined is not None and combined[0] == L
+            c = combined[1]
+            new[d][b] = hists[d][b] - hists[L].get(c, 0)
+    return new
+
+
+def brute_transition(U: list[int], D: list[int], m: int, r: int) -> dict[int, dict[int, int]]:
+    """Brute-force histogram transition (independent of the CRT lemma)."""
+    U2 = [u for u in U if u % m != r]
+    return histograms(U2, D)
+
+
 __all__ = [
     "brute_force_joint_count",
     "crt_combine",
     "histogram",
     "joint_intersection_count",
+    "histograms",
     "lcm",
+    "transition_step",
     "top_lifts_joint_count",
+    "brute_transition",
 ]
