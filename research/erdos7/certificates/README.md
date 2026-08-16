@@ -50,3 +50,11 @@ proves the order-4 optimum is `F* = 24457/394240`, hence
 `g = g1 − F* = 2561789/1182720 > 2`, with residual gap `196349/1182720`.  It is
 verified by `../solver/higher_overlap.py::verify_order4_certificate` (exact
 `Fraction` arithmetic).  See `../NOTES.md` Section 15.
+
+`omega6_star.json` is the one-coordinate star-collision certificate: for each
+prime coordinate `i` it stores an exactly feasible atom distribution (primal) and
+an exactly feasible star-LP dual, both with `Fraction` values, proving the exact
+star lower envelope `1/105, 307/6720, 1/560, 0, 0, 0`.  These give the rigorous
+insufficiency bound `F_star* ≤ 347/2688`, hence `g_star ≥ 2821/1344 > 2`
+(residual gap `≥ 133/1344`).  Verified by
+`../solver/star_collision.py::verify_star`.  See `../NOTES.md` Section 16.

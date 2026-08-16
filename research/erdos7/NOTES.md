@@ -796,3 +796,78 @@ layer, that certain overlapping intersections are nonempty, turning some
 multi-intersection inequality invisible to the unconditional BFF basis, and the
 natural entry point for a profile-state recurrence rather than a finite
 computation.
+
+## 16. One-coordinate star-collision relaxation (Milestone 7)
+
+### 16.1 The star-collision lemma (task K1)
+
+For a fixed prime coordinate `i`, the five blocks `B_{ij}` (`j ≠ i`) all have
+measure `z_i` in the same coordinate.  Writing the `2^5 = 32` membership-pattern
+atom masses
+
+    y_{i,T} = measure{x : x ∈ B_{ij} ⟺ j ∈ T},   T ⊆ [6]∖{i},
+
+the constraints are `y ≥ 0`, `Σ_T y_{i,T} = 1`, and `Σ_{T∋j} y_{i,T} = z_i` for
+every `j ≠ i`.  For any nonnegative pair weights `c_{jk}`,
+
+    Σ_{j<k, j,k≠i} c_{jk} · measure(B_{ij} ∩ B_{ik})
+      = Σ_T y_{i,T} · Σ_{{j,k}⊆T} c_{jk}
+      ≥ min over feasible ``y`` of that same linear form.
+
+That minimum is the *star lower envelope*.  Its LP dual is
+`max v_0 + z_i Σ_j v_j` subject to `v_0 + Σ_{j∈T} v_j ≤ Σ_{{j,k}⊆T} c_{jk}`.
+For the benchmark `c_{jk} = z_j z_k` the exact optima (primal+dual certified in
+`certificates/omega6_star.json`) are:
+
+| coordinate i | 1 | 2 | 3 | 4 | 5 | 6 |
+|---|---|---|---|---|---|---|
+| `LP_i(z_j z_k)` | 1/105 | 307/6720 | 1/560 | 0 | 0 | 0 |
+
+The first three stars are nontrivial (`5 z_i > 1` for `i = 1,2,3`), as expected.
+Implementation and independent verification: `solver/star_collision.py`.
+
+### 16.2 The star-pair relaxation is insufficient (tasks K2/K3)
+
+Embedding each star dual into the coefficient certificate gives the star-pair
+aggregate relaxation.  A direct rigorous upper bound on its optimum is:
+
+* each pair multiplier is `≤ 1` (the two-vertex pointwise constraint), so the
+  disjoint-pair credit is at most `Σ L_e = 3 e_4(z) = 323/4480`;
+* by monotonicity of each star LP in the weights, the overlapping-pair credit is
+  at most `Σ_i LP_i(z_j z_k) = 383/6720`;
+* positive triple/quadruple coefficients only reduce the credit.
+
+Therefore
+
+    F_star* ≤ 323/4480 + 383/6720 = 347/2688,
+    g_star = g1 − F_star* ≥ 5989/2688 − 347/2688 = 2821/1344 = 2.09896… > 2,
+    g_star − 2 ≥ 133/1344 ≈ 0.099.
+
+So the one-coordinate star-pair aggregate relaxation cannot close the six-prime
+corner; the residual gap is certified at least `133/1344`.
+
+### 16.3 The next profile state: lcm-bin histograms (task K5)
+
+The obstruction remains exactly as diagnosed in Section 15.4: overlapping
+intersections have no individual positive lower bound.  The richer exact state
+is the lcm-bin histogram
+
+    h_d(b; U) = |{ u ∈ U : u ≡ b (mod d) }|.
+
+For projected top classes `b_j mod d_j`, the joint base count is
+`h_lcm(d_j)(b; U)` when the congruences are CRT-compatible, and `0` otherwise;
+this is proved and brute-force-validated in `solver/profile_histogram.py`.  For
+full-`p`-adic top classes `mod p^a e_j`, a compatible base contributes exactly
+one of its `p` lifts (two lifts of the same base are distinct `mod p^a e_j`), so
+the joint lift count equals the same compatible-base count.  This is the exact
+finite-dimensional state from which a conditioned profile recurrence should be
+built, replacing the scalar `μ_d(U)` of Task F1.
+
+### 16.4 Status
+
+Milestone 7 outcome is the *sharp obstruction* at the one-coordinate level: the
+star-pair membership-pattern relaxation is certified insufficient, and the
+joint lcm-bin histogram is the exact next state.  The full K3 atom-state LP
+(pricing triples/quadruples through `y_{i,T}`) remains a larger exact
+computation; the star-pair bound above already dominates its pair-level
+contribution.
