@@ -517,3 +517,52 @@ five- or six-prime support by itself.  The next bottleneck is therefore to
 then `ω = 6`) with the conditioned top-layer CRT/Hall profile machinery of the
 Milestone 3 brief (Task F1–F4), or another method, in order to reproduce or go
 beyond the published `ω ≥ 6` result.
+
+## 12. Conditioned top-layer profile inequality (Task F1)
+
+The first concrete tool for sharpening the raw recurrence is the following
+conditioned capacity inequality, which is where the next proof effort resumes.
+
+### Statement
+
+Let `N = p^a M` with `p` prime, `gcd(p, M) = 1`, and write `L = N/p =
+p^{a−1} M`.  Fix the *lower layer*: one residue class for each chosen divisor
+`d | L, d > 1` (at most one per divisor).  Let `U ⊆ Z/LZ` be the set of
+residues left uncovered by the lower layer, and define, for `d | L`,
+
+    μ_d(U) = max_b |{ u ∈ U : u ≡ b (mod d) }|.
+
+Then the full-`p`-adic top layer (`p^a e`, `e | M`) can cover at most
+
+    C(U) = Σ_{e | M} μ_{p^{a−1} e}(U)
+
+of the `p · |U|` lifts of `U` to `Z/NZ`.  Consequently any full cover requires
+
+    p · |U| ≤ Σ_{e | M} μ_{p^{a−1} e}(U).
+
+### Proof
+
+A class `r mod p^a e` meets a lift `u + tL` only if `u ≡ r (mod p^{a−1} e)`,
+because `L` is divisible by `p^{a−1} e`.  Hence its base points `u ∈ U` lie in
+one residue class modulo `p^{a−1} e`, at most `μ_{p^{a−1} e}(U)` of them.  For
+fixed `u`, two distinct lifts `u + tL`, `u + t′L` differ by
+`(t−t′)·p^{a−1} M`, which is divisible by `p^a` only when `t ≡ t′ (mod p)`;
+so the class meets at most one lift of each such `u`.  Therefore the class meets
+at most `μ_{p^{a−1} e}(U)` lifts in total, and summing over the distinct top
+moduli gives `C(U)`.  ∎
+
+### Relation to the raw recurrence
+
+Each residue class modulo `p^{a−1} e` has size `L/(p^{a−1} e) = M/e`, so
+`μ_{p^{a−1} e}(U) ≤ M/e`, and replacing every profile term by `M/e` recovers
+the raw `σ(M)` charge.  The profile inequality is therefore a strict refinement
+whenever `U` is concentrated in some residue classes.  Brute-force verification
+on small instances is in `solver/test_profile.py`; the implementation is
+`solver/profile.py`.
+
+### Provenance
+
+This is an elementary counting lemma.  We prove it and verify it exhaustively;
+we do **not** claim novelty, and we have not yet located an exact published
+statement.  It is the intended entry point to the conditioned CRT/Hall profile
+state needed to attack the `ω = 5` survivors.
