@@ -649,3 +649,79 @@ exhausted at `ω = 6`; it cannot force `ω ≥ 7`.  The next step is a higher-or
 acyclic-overlap correction (junction-tree / hypertree inclusion–exclusion, or a
 dual certificate weighting triple intersections), using the `k = 6` corner
 `{3,5,7,11,13,17}` as the discovery instance.
+
+## 14. Higher-order overlap certificate (Milestone 5)
+
+### 14.1 The coefficient-certificate lemma (task I1)
+
+Let `{A_v : v ∈ V}` be finite sets and `{α_J : ∅≠J⊆V}` rational coefficients.
+If, for every nonempty membership pattern `T ⊆ V`,
+
+    Σ_{∅≠J⊆T} α_J ≥ 1,                                          (C)
+
+then
+
+    |⋃_{v∈V} A_v| ≤ Σ_{∅≠J⊆V} α_J · |⋂_{j∈J} A_j|.
+
+*Proof.*  Fix a point `x`; put `T = {v : x ∈ A_v}`.  If `T = ∅` then `x`
+contributes to neither side.  Otherwise `x` contributes `1` to the left side and
+exactly `Σ_{∅≠J⊆T} α_J` to the right side, which is `≥ 1` by (C).  Summing over
+`x` gives the bound.  ∎  The forest lemma is the special case `α_v = 1`,
+`α_{uv} = −1` on forest edges, all other `α_J = 0`: for `T` the induced subgraph
+has `≤ |T|−1` edges, so `|T| − (#edges) ≥ 1`.
+
+### 14.2 The six-prime intersection semantics (task I2)
+
+At `n = 6`, the BFF building blocks are indexed by the `15` two-subsets `I` of
+`{1,…,6}`; each is a product set whose normalized size is `∏_{i∈I} z_i`, with
+the worst-case `z` values
+
+    z_1 = 1/3, z_2 = 1/2, z_3 = 1/4, z_4 = 1/8, z_5 = 1/10, z_6 = 1/14.
+
+Because the sets are products over disjoint coordinate sets:
+
+* a **disjoint** pair `{I,J}` has exact intersection `∏_{i∈I∪J} z_i` (a lower
+  bound and also exact);
+* an **overlapping** pair shares a coordinate, so its intersection can be `0`
+  (the safe lower bound; such pairs are never useful and are omitted);
+* a **triple** `{I,J,K}` has intersection at most `∏_{i∈I∪J∪K} z_i` (the safe
+  upper bound used with the positive triple coefficient).
+
+These are the only intersection bounds entering the certificate; none is
+heuristic.
+
+### 14.3 The pair+triple LP and its exact dual (tasks I3/I4)
+
+The certificate is
+
+    |⋃ A_v| ≤ Σ_v |A_v| − Σ_e λ_e |A_u∩A_v| + Σ_h μ_h |A_i∩A_j∩A_k|,
+
+with `λ_e, μ_h ≥ 0` and pointwise validity (from (C))
+
+    |T| − Σ_{e⊆T} λ_e + Σ_{h⊆T} μ_h ≥ 1   for all ∅≠T⊆V.
+
+Maximizing the correction `F = Σ_e λ_e L_e − Σ_h μ_h U_h` over the `2^15−1`
+patterns gives, by LP duality, an exact optimum `F* = 9997/161280`.  The dual
+certificate (171 nonzero rational dual weights, stored in
+`certificates/omega6_overlap.json`) independently proves this value: it is
+nonnegative, covers every disjoint pair weight, and its objective is exactly
+`9997/161280`.
+
+Consequently, with `g1 = 5989/2688`,
+
+    g = g1 − F* = 349343/161280 = 2.16606… > 2,
+
+and the residual gap above `2` is
+
+    g − 2 = 26783/161280 ≈ 0.166.
+
+### 14.4 Verdict and the next missing term (tasks I5/I6)
+
+The pair+triple basis is therefore **rigorously certified insufficient**: even
+its exact optimum leaves `g > 2`, so it cannot exclude the six-prime corner and
+cannot yield `ω(N) ≥ 7`.  The sharply isolated missing ingredient is the next
+acyclic-overlap layer — selected **quadruple** intersections (or an equivalent
+junction-tree/hypertree correction) — to close the residual gap `26783/161280`.
+`solver/higher_overlap.py` provides the lemma and the pure-`Fraction` verifier;
+`solver/test_higher_overlap.py` checks the pointwise constraints, the forest
+special case, and the exact certificate.

@@ -32,3 +32,14 @@ pytest test_certificate.py -q
 The square-free base values are pure integer arithmetic (no external solver);
 the recurrence is likewise exact integer arithmetic.  The `covering.py` and
 `milp.py` modules provide an independent SAT/MILP cross-check for small `N`.
+
+## Higher-order insufficiency certificate
+
+`omega6_overlap.json` is a different kind of artifact: an exact **dual**
+certificate (171 rational weights) proving that the pair+triple overlap basis
+cannot exclude the six-prime corner `{3,5,7,11,13,17}`.  Its optimal correction
+is `F* = 9997/161280`, giving `g = g1 − F* = 349343/161280 > 2`; see
+`../NOTES.md` Section 14.  It is verified with exact rational arithmetic by
+`../solver/higher_overlap.py::verify_certificate` and
+`../solver/test_higher_overlap.py` (no floating point, no external solver in the
+trusted path).
