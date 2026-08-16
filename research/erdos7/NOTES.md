@@ -246,3 +246,89 @@ multi-prime-power version of Lemma 4.10 that also corrects the `σ(M)` term of
 the recurrence.
 
 No finite search is claimed to resolve the open problem.
+
+## 6. The power-lifting criterion
+
+### Statement
+
+Let `p` be prime and `gcd(p, M) = 1`.  If
+
+    (p − 1) · δ(pM) ≥ σ(M),
+
+then for **every** integer `a ≥ 1`,
+
+    δ(p^a M) ≥ σ(M)/(p − 1) ≥ 1,
+
+and consequently `p^a M` is **not** a covering number for every `a ≥ 1`.
+
+### Proof
+
+Iterate the deficiency recurrence (Section 2).  Induction on `a` gives
+
+    δ(p^a M) ≥ p^{a−1} δ(pM) − σ(M) · (p^{a−1} − 1)/(p − 1).       (†)
+
+The base case `a = 1` is trivial.  For `a ≥ 2`,
+
+    δ(p^a M) ≥ p · δ(p^{a−1}M) − σ(M)
+              ≥ p · [ p^{a−2} δ(pM) − σ(M)(p^{a−2}−1)/(p−1) ] − σ(M)
+              = p^{a−1} δ(pM) − σ(M) · (p^{a−1}−1)/(p−1).
+
+Combining (†) with `(p−1)δ(pM) ≥ σ(M)`:
+
+    δ(p^a M) ≥ p^{a−1} · σ(M)/(p−1) − σ(M) · (p^{a−1}−1)/(p−1)
+              = σ(M)/(p−1) ≥ 1,
+
+because `σ(M) ≥ 1` and `p − 1 ≥ 1`.  ∎
+
+### Classification
+
+The criterion is an immediate corollary of the (elementary) deficiency
+recurrence.  It does not appear to be stated in the literature we checked
+(McNew–Setty, Mian–Siddique, Hough–Nielsen, BBMST); we record it as a
+straightforward, apparently unpublished observation.
+
+## 7. Infinite families and the exponent-cone miner
+
+Combining McNew–Setty Lemma 4.10 with Section 6 gives proved infinite families;
+the full catalogue and derivations are in `INFINITE_FAMILIES.md`.  Two headline
+families:
+
+### Family B
+
+For every prime `q ≥ 11` and every integer `a ≥ 1`,
+
+    N = 3^a · 5 · 7 · q   is not a covering number.
+
+Derivation: `δ(3·5·7·q) ≥ 35q − 89` (Lemma 4.10); with `p = 3`, `M = 5·7·q`,
+`σ(M) = 48(q+1)`, and
+
+    2·(35q−89) − 48(q+1) = 22q − 226 ≥ 0   for q ≥ 11.
+
+### Family C
+
+For every prime `q ≥ 11` and every integer `b ≥ 1`,
+
+    N = 3^2 · 5^b · 7 · q   is not a covering number.
+
+Derivation: `δ(3^2·5·7·q) ≥ 57q − 315` (one recurrence step); with `p = 5`,
+`M = 3^2·7·q`, `σ(M) = 104(q+1)`, and
+
+    4·(57q−315) − 104(q+1) = 124q − 1364 ≥ 0   for q ≥ 11,
+
+with equality at `q = 11`.
+
+The `solver/symbolic.py` miner turns this into exact machinery: it evaluates
+Lemma 4.10 symbolically as an affine form in a free prime `q`, applies the
+recurrence one prime-power step at a time, and checks the Section 6 criterion to
+mark an exponent as free.  See `INFINITE_FAMILIES.md` for the clustered output.
+
+### Smallest surviving primitive-candidate pattern (Task E)
+
+Intersecting the all-primes necessary condition
+`p_i ≤ τ(N/p_i^{v_p(N)})` with the current deficiency bounds leaves
+
+    51975 = 3^3 · 5^2 · 7 · 11
+
+as the smallest odd, abundant, non-square-free exponent pattern that (a) passes
+the all-primes filter and (b) is **not** excluded by the current recurrence /
+Lemma 4.10 bounds (`δ_lower = 0`).  This is the next concrete bottleneck.
