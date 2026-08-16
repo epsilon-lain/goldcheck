@@ -725,3 +725,74 @@ junction-tree/hypertree correction) — to close the residual gap `26783/161280`
 `solver/higher_overlap.py` provides the lemma and the pure-`Fraction` verifier;
 `solver/test_higher_overlap.py` checks the pointwise constraints, the forest
 special case, and the exact certificate.
+
+## 15. Order-4 (quadruple) basis is also insufficient (Milestone 6)
+
+### 15.1 The audited intersection oracle (task J1)
+
+With the BFF building block `A_I` a product set whose coordinate `i ∈ I` is a
+single residue class (normalized factor `z_i`) and whose other coordinates are
+full, the certified intersection bounds for a family `J` of two-subsets are:
+
+* `U_J = ∏_{i∈∪_{v∈J} I_v} z_i` is a certified upper bound (and tight), for
+  every `J`;
+* `L_J = U_J` is certified **exactly** when the index sets `I_v` are pairwise
+  disjoint (no coordinate is shared, so no coordinate can be split);
+* otherwise only the trivial `L_J = 0` is certified.
+
+For `n = 6` there are `15` two-subsets; a quadruple of two-subsets always shares
+a coordinate (`4·2 > 6`), so **every quadruple has only `L = 0`**.  This is the
+key structural fact: the unconditioned basis has no positive lower bound for any
+overlapping pair, any non-matching triple, or any quadruple.
+
+### 15.2 The sign-aware order-4 LP (task J2)
+
+Using the Milestone-5 coefficient certificate with signs split as
+`α_J = α_J⁺ − α_J⁻`, the objective maximizes the certified correction
+
+    F = Σ_e λ_e L_e − Σ_h μ_h U_h − Σ_q ν_q U_q
+
+over `λ, μ, ν ≥ 0`, subject to the `2^15 − 1 = 32767` pointwise constraints
+
+    |T| − Σ_{e⊆T} λ_e + Σ_{h⊆T} μ_h + Σ_{q⊆T} ν_q ≥ 1.
+
+Here `e` ranges over the `45` disjoint pairs (`L_e` exact), `h` over the `455`
+triples (`U_h`), and `q` over the `1365` quadruples (`U_q`).  A positive
+coefficient is charged its upper bound; a negative coefficient is credited its
+lower bound.
+
+### 15.3 Exact optimum and insufficiency certificate (tasks J4/J5)
+
+The exact optimum (HiGHS for discovery, then rationalized and independently
+verified with `Fraction`) is
+
+    F* = 24457/394240,
+    g  = g1 − F* = 5989/2688 − 24457/394240 = 2561789/1182720 = 2.16601… > 2,
+    g − 2 = 196349/1182720 ≈ 0.166.
+
+The `235`-weight rational dual certificate is stored in
+`certificates/omega6_order4_overlap.json`; `verify_order4_certificate` re-checks
+nonnegativity, the pair lower-bound constraints, the triple upper-bound
+constraints, the quadruple upper-bound constraints, and the exact dual objective.
+
+The order-3 value was `9997/161280 ≈ 0.061985`; adding quadruples only moves the
+optimum to `24457/394240 ≈ 0.062036`, an improvement of about `5 × 10⁻⁵`.
+Quadruple terms therefore provide essentially no additional certified correction.
+
+### 15.4 Structural conclusion and the next step (tasks J5/J6)
+
+The complete unconditioned `|J| ≤ 4` coefficient basis is **insufficient** and
+its residual gap is `196349/1182720`.  The obstruction is not "need fifth-order
+terms": it is the absence of any nonzero certified **lower** bound for the
+overlapping intersections (`L = 0` for every non-matching family).  The
+unconditioned product-set structure cannot certify that two blocks sharing a
+coordinate actually overlap.
+
+The precise next ingredient is therefore **conditioned** lower-bound
+information: the Task-F1 profile state `μ_d(U)` (concentration of the lower
+layer's uncovered set in residue classes) can certify, for a realizable lower
+layer, that certain overlapping intersections are nonempty, turning some
+`L = 0` entries into positive certified lower bounds.  That is the concrete
+multi-intersection inequality invisible to the unconditional BFF basis, and the
+natural entry point for a profile-state recurrence rather than a finite
+computation.

@@ -9,15 +9,19 @@ from higher_overlap import (
     coefficient_certificate_premise,
     disjoint_pairs,
     g1_value,
+    intersection_oracle,
     nonempty_subsets,
     pair_lower,
+    quadruple_upper,
     verify_certificate,
+    verify_order4_certificate,
     vertices,
     z_values,
 )
 
 
 CERT = Path(__file__).resolve().parent.parent / "certificates" / "omega6_overlap.json"
+CERT4 = Path(__file__).resolve().parent.parent / "certificates" / "omega6_order4_overlap.json"
 
 
 def _union(sets):
@@ -103,3 +107,35 @@ def test_g1_matches_milestone4():
     z = z_values(6, [3, 5, 7, 11, 13, 17])
     g1 = g1_value([3, 5, 7, 11, 13, 17], z)
     assert g1 == Fraction(5989, 2688)
+
+
+def test_intersection_oracle():
+    z = z_values(6, [3, 5, 7, 11, 13, 17])
+    # Disjoint pair: exact = product over the four indices.
+    L, U = intersection_oracle([(1, 2), (3, 4)], z)
+    assert L == U
+    assert L == z[1] * z[2] * z[3] * z[4]
+    # A pair of 2-subsets sharing coordinate 1 has trivial lower bound.
+    a, b = (1, 2), (1, 3)
+    L2, U2 = intersection_oracle([a, b], z)
+    assert L2 == 0
+    assert U2 == z[1] * z[2] * z[3]
+    # A quadruple is always overlapping (4 pairs need 8 > 6 elements).
+    L4, U4 = intersection_oracle([(1, 2), (3, 4), (5, 6), (1, 3)], z)
+    assert L4 == 0
+    expected = z[1] * z[2] * z[3] * z[4] * z[5] * z[6]
+    assert U4 == expected
+
+
+def test_order4_certificate_is_insufficient():
+    import json
+
+    cert = json.loads(CERT4.read_text(encoding="utf-8"))
+    result = verify_order4_certificate(cert)
+    assert result["nonneg"]
+    assert result["pair_lower_ok"]
+    assert result["triple_upper_ok"]
+    assert result["quadruple_upper_ok"]
+    assert result["dual_obj_matches_F_star"]
+    assert result["g"] > 2
+    assert result["residual_gap"] > 0

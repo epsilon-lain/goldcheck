@@ -43,3 +43,10 @@ is `F* = 9997/161280`, giving `g = g1 − F* = 349343/161280 > 2`; see
 `../solver/higher_overlap.py::verify_certificate` and
 `../solver/test_higher_overlap.py` (no floating point, no external solver in the
 trusted path).
+
+`omega6_order4_overlap.json` extends the same insufficiency to the full
+`|J| ≤ 4` basis (pairs + triples + quadruples).  Its `235`-weight dual certificate
+proves the order-4 optimum is `F* = 24457/394240`, hence
+`g = g1 − F* = 2561789/1182720 > 2`, with residual gap `196349/1182720`.  It is
+verified by `../solver/higher_overlap.py::verify_order4_certificate` (exact
+`Fraction` arithmetic).  See `../NOTES.md` Section 15.

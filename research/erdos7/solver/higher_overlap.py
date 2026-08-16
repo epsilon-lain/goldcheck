@@ -103,6 +103,70 @@ def pair_lower(n: int, z: dict[int, Fraction]) -> dict[tuple[int, int], Fraction
     }
 
 
+def triples(n: int) -> list[tuple[int, int, int]]:
+    """All vertex-index triples (three 2-subsets)."""
+    return list(combinations(range(len(vertices(n))), 3))
+
+
+def quadruples(n: int) -> list[tuple[int, int, int, int]]:
+    """All vertex-index quadruples (four 2-subsets)."""
+    return list(combinations(range(len(vertices(n))), 4))
+
+
+def triple_upper(n: int, z: dict[int, Fraction]) -> dict[tuple, Fraction]:
+    """Certified upper bounds ``U_h = prod_{i in union} z_i`` for triples."""
+    vs = vertices(n)
+    return {
+        t: _product_over_family([vs[i] for i in t], z)
+        for t in triples(n)
+    }
+
+
+def quadruple_upper(n: int, z: dict[int, Fraction]) -> dict[tuple, Fraction]:
+    """Certified upper bounds ``U_q = prod_{i in union} z_i`` for quadruples."""
+    vs = vertices(n)
+    return {
+        q: _product_over_family([vs[i] for i in q], z)
+        for q in quadruples(n)
+    }
+
+
+def _product_over_family(indices: list[tuple[int, ...]], z) -> Fraction:
+    u = set()
+    for idx in indices:
+        u |= set(idx)
+    wt = Fraction(1)
+    for k in u:
+        wt *= z[k]
+    return wt
+
+
+def intersection_oracle(indices: list[tuple[int, ...]], z) -> tuple[Fraction, Fraction]:
+    """Return ``(L, U)`` certified bounds for ``|cap A_I|``.
+
+    The BFF building block ``A_I`` is a product set whose ``i``-th coordinate is a
+    single residue class when ``i in I`` (normalized factor ``z_i``) and is full
+    otherwise.  Hence:
+
+    * ``U = prod_{i in union} z_i`` is a certified upper bound (tight);
+    * ``L = prod_{i in union} z_i`` is certified exactly when the index sets are
+      pairwise disjoint (no shared coordinate can be split);
+    * otherwise only the trivial ``L = 0`` is certified.
+    """
+    u = set()
+    pairwise_disjoint = True
+    for i, a in enumerate(indices):
+        u |= set(a)
+        for b in indices[i + 1:]:
+            if set(a) & set(b):
+                pairwise_disjoint = False
+    U = Fraction(1)
+    for k in u:
+        U *= z[k]
+    L = U if pairwise_disjoint else Fraction(0)
+    return L, U
+
+
 def _product_over_union(u: tuple[int, ...], v: tuple[int, ...], z) -> Fraction:
     wt = Fraction(1)
     for k in set(u) | set(v):
@@ -181,15 +245,84 @@ def verify_certificate(cert: dict) -> dict:
     }
 
 
+def verify_order4_certificate(cert: dict) -> dict:
+    """Independently verify the order-4 (pair+triple+quadruple) dual certificate.
+
+    The order-4 dual is ``min sum_T (|T|-1) d_T`` subject to, for all nonempty
+    ``T``, ``d_T >= 0``, together with
+
+        sum_{T containing e} d_T >= L_e      (disjoint pairs),
+        sum_{T containing h} d_T <= U_h      (triples),
+        sum_{T containing q} d_T <= U_q      (quadruples).
+    """
+    n = cert["n"]
+    primes = cert["primes"]
+    z = {int(k): Fraction(v) for k, v in cert["z"].items()}
+    vs = vertices(n)
+    vidx = {v: i for i, v in enumerate(vs)}
+
+    L = pair_lower(n, z)
+    U3 = triple_upper(n, z)
+    U4 = quadruple_upper(n, z)
+
+    entries = []
+    for e in cert["dual_entries"]:
+        T = frozenset(vidx[tuple(v)] for v in e["T"])
+        entries.append((T, Fraction(e["d"])))
+
+    nonneg = all(d >= 0 for _, d in entries)
+
+    pair_sum = {p: Fraction(0) for p in L}
+    tri_sum = {t: Fraction(0) for t in U3}
+    quad_sum = {q: Fraction(0) for q in U4}
+    for T, d in entries:
+        for p in L:
+            if p[0] in T and p[1] in T:
+                pair_sum[p] += d
+        for t in U3:
+            if all(i in T for i in t):
+                tri_sum[t] += d
+        for q in U4:
+            if all(i in T for i in q):
+                quad_sum[q] += d
+
+    pair_ok = all(pair_sum[p] >= L[p] for p in L)
+    triple_ok = all(tri_sum[t] <= U3[t] for t in U3)
+    quad_ok = all(quad_sum[q] <= U4[q] for q in U4)
+    dual_obj = sum(Fraction(len(T) - 1) * d for T, d in entries)
+    F_star = Fraction(cert["F_star"])
+    g1 = g1_value(primes, z)
+    g = g1 - F_star
+
+    return {
+        "nonneg": nonneg,
+        "pair_lower_ok": pair_ok,
+        "triple_upper_ok": triple_ok,
+        "quadruple_upper_ok": quad_ok,
+        "dual_obj": dual_obj,
+        "dual_obj_matches_F_star": dual_obj == F_star,
+        "g1": g1,
+        "g": g,
+        "g_gt_2": g > 2,
+        "residual_gap": g - 2,
+    }
+
+
 __all__ = [
     "coefficient_certificate_bound",
     "coefficient_certificate_premise",
     "disjoint_pairs",
     "g1_value",
     "load_certificate",
+    "intersection_oracle",
     "nonempty_subsets",
     "pair_lower",
+    "quadruple_upper",
+    "quadruples",
+    "triple_upper",
+    "triples",
     "verify_certificate",
+    "verify_order4_certificate",
     "vertices",
     "z_values",
 ]

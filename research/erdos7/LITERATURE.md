@@ -116,6 +116,11 @@ proof uses the forest inequality
 coordinates.  We audited the scanned PDF directly and reconstructed this engine
 in `solver/bff1987.py` (see `NOTES.md` Section 13); the reconstruction is
 validated by reproducing the published `ω ≥ 6`, not claimed as new.
+The higher-order overlap optimizations of Sections 14–15 (`ω = 6` pair/triple
+and pair/triple/quadruple coefficient certificates) are exact computational
+consequences of the audited BFF product-set structure; they likewise are not new
+theorems, and their insufficiency certificates are recorded with exact rational
+dual witnesses in `solver/higher_overlap.py`.
 
 ## 4. Classification of the facts used in this repository
 
