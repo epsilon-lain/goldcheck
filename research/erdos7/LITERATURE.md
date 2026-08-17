@@ -184,12 +184,80 @@ dual witnesses in `solver/higher_overlap.py`.
   proved recurrence with the square-free CRT/Hall bound.  These are concrete
   computational instantiations of the two proved lemmas, not a new theorem.
 
+* **Conditioned top-layer profile inequality** (Section 12 of `NOTES.md`): for
+  `N = p^a M`, the full-`p`-adic top layer covers at most
+  `Σ_{e|M} μ_{p^{a−1}e}(U)` of the `p|U|` lifts of a lower-uncovered set `U`.
+  This is an elementary counting lemma; we prove and exhaustively test it but do
+  not claim novelty, and we have not located an exact published statement.
+
+* **Lcm-histogram transition lemma** (Section 17 of `NOTES.md`): the family
+  `h_d(b;U)` is Markovian under removing one lower-layer class when the divisor
+  family is lcm-closed.  This is an elementary CRT consequence proved and
+  brute-force-validated in this repository; we do not claim it as a published
+  theorem.
+
+* **Exact insufficiency certificates for the one-coordinate star-pair, K3
+  32-atom, pair+triple, and pair+triple+quadruple coefficient bases** (Sections
+  14–18 of `NOTES.md`).  These are exact computational consequences of the
+  audited BFF product-set structure, not new theorems; their rational dual
+  witnesses are independently verified in `solver/`.
+
 ## 5. What this repository does *not* claim
 
 No finite computation is used to claim the open problem is solved.  The three
 certificates only show that `10395`, `12285`, `17325`, and (via the full bound)
 `51975` are not covering numbers.  The direct Lemma 4.10 bound proves the
 published `ω ≥ 5` consequence (`ω ≤ 4` is impossible) but does **not** reach the
-published `ω ≥ 6` result; the current frontier and next bottleneck are the
-`ω = 5` survivors of the direct bound, beginning with
-`70945875 = 3^4 · 5^3 · 7^2 · 11 · 13` (see `NOTES.md` Section 11).
+published `ω ≥ 6` result.  The audited BFF 1987 forest method reproduces
+`ω ≥ 6`, and the repository currently has no proof of `ω ≥ 7`; the six-prime
+corner `{3,5,7,11,13,17}` remains open at the level of the K3/profile states.
+
+## 6. Milestone 9 literature sanity check (M9.0)
+
+On 2026-08-17 we searched primary sources and recent literature for any
+post-1987 strengthening of the BFF `ω ≥ 6` theorem, any `ω ≥ 7` claim, and any
+prior use of conditioned CRT/profile/histogram states for odd incongruent
+covering systems.
+
+### 6.1 No post-1987 general `ω ≥ 7` found
+
+We did **not** find a published theorem asserting that an odd distinct covering
+system must have at least seven distinct prime factors.  The 1987 result
+
+* **Berger–Felzenbaum–Fraenkel**, *Necessary condition for the existence of an
+  incongruent covering system with odd moduli. II*, Acta Arith. **48** (1987)
+  73–79 (Zbl 0623.10004),
+
+remains, to our knowledge, the published frontier for the unrestricted
+non-square-free odd distinct case: it proves `ω ≥ 6`.  Our repository
+reproduces this (Section 13 of `NOTES.md`) but does **not** extend it to
+`ω ≥ 7`.
+
+### 6.2 Square-free results do not give a general `ω ≥ 7`
+
+The square-free case is much stronger but does **not** transfer to the
+non-square-free setting:
+
+* **Song Guo and Zhi-Wei Sun**, *On odd covering systems with distinct moduli*,
+  Adv. Appl. Math. **35** (2005) 182–187 (arXiv:math/0412217): a square-free
+  odd distinct covering system, if it existed, would have lcm with at least
+  **22** distinct prime divisors.
+
+* **Balister–Bollobás–Morris–Sahasrabudhe–Tiba**, *The Erdős–Selfridge problem
+  with square-free moduli*, Algebra Number Theory **15** (2021) 609–626
+  (arXiv:1901.11465): such a square-free odd distinct covering does **not**
+  exist at all.  This supersedes the Guo–Sun `22`-prime necessary condition.
+
+Neither result constrains a hypothetical odd covering whose lcm has a squared
+prime divisor; in particular, neither implies `ω ≥ 7` in the unrestricted case.
+
+### 6.3 Provenance of the repository's higher-order/profile statements
+
+The one-coordinate star-collision lower envelopes, the K3 32-atom relaxation,
+the pair/triple and order-4 coefficient certificates, the conditioned top-layer
+profile inequality, and the lcm-histogram transition lemma are all formulated
+and machine-checked in this repository.  They are exact computational or
+elementary counting consequences of the published BFF product-set structure and
+the CRT; we classify them as **straightforward consequences / apparently
+unpublished observations**, and we do **not** claim any of them as a published
+theorem or as a solution of Erdős #7.

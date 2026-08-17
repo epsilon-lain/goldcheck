@@ -913,3 +913,108 @@ exact computation; the star-pair bound of Section 16.2 is a rigorous lower
 bound on its correction.  The next concrete steps are: solve/dualize the full
 K3 LP, then use the L2 transition to build the first histogram-state profile
 optimizer (L3) on the smallest surviving six-prime seed.
+
+## 18. Full K3 32-atom relaxation is certified insufficient (Milestone 9, M9.1)
+
+### 18.1 The local K3 atom LP
+
+For a fixed prime coordinate `i ∈ {1,…,6}`, the five blocks
+`B_{ij}` (`j ≠ i`) all have measure `z_i` in the `i`-th coordinate.  Write the
+`2^5 = 32` membership-pattern atom masses
+
+    y_{i,T} = measure{ x : x ∈ B_{ij} ⟺ j ∈ T },   T ⊆ [6]∖{i},
+
+with the exact atom constraints
+
+    y_{i,T} ≥ 0,   Σ_T y_{i,T} = 1,
+    Σ_{T ∋ j} y_{i,T} = z_i   for every j ≠ i.
+
+For a family `S ⊆ [6]∖{i}` of neighbours, the intersection of the blocks
+`B_{ij}` (`j ∈ S`) has mass
+
+    Σ_{T ⊇ S} y_{i,T}.
+
+The full K3 model prices every such family simultaneously through the same atom
+distribution.  If `β_S ≥ 0` are the global coefficients and
+
+    p_S := ∏_{j∈S} z_j,
+
+then the *worst-case* (most spread-out) weighted intersection mass allowed by
+the atom constraints is the optimum of
+
+    min_y  Σ_T y_{i,T} · Σ_{S⊆T} β_S p_S
+    s.t.   the atom constraints above.                                   (L)
+
+By strong LP duality this equals its dual
+
+    max  v_0 + z_i Σ_{j≠i} v_j
+    s.t. v_0 + Σ_{j∈T} v_j ≤ Σ_{S⊆T} β_S p_S   for every T.            (D)
+
+The common optimum `LC_i` is the largest certified lower bound on the weighted
+star-intersection mass, hence the largest credit that the single coordinate `i`
+can contribute to the global correction; the `Σ_i LC_i` term below is therefore
+an exact upper bound on the star-family part of that correction.
+
+For the six-prime corner `{3,5,7,11,13,17}` and parameters
+
+    z = (1/3, 1/2, 1/4, 1/8, 1/10, 1/14),
+
+the exact local optima, each certified by a primal/dual pair stored in
+`certificates/omega6_k3_atom.json` and independently re-checked by
+`solver/k3_atom.py::verify_local`, are:
+
+| coordinate i | 1 | 2 | 3 | 4 | 5 | 6 |
+|---|---|---|---|---|---|---|
+| `LC_i` | 1/168 | 59/2380 | 1/664 | 0 | 0 | 0 |
+
+The first three stars are the only nontrivial ones, as in the pair-level
+Section 16 bound.  The exact primal and dual vectors are part of the certificate
+and are verified with `Fraction` arithmetic only.
+
+### 18.2 Decoupling the global coefficient certificate
+
+The global BFF correction at `n = 6` splits into three disjoint sources:
+
+* **Disjoint pairs.**  A pair of blocks `{I,J}` with `I∩J=∅` has exact
+  intersection `∏_{i∈I∪J} z_i` and each pair multiplier is at most `1` (the
+  two-vertex pointwise constraint).  The total disjoint-pair credit is therefore
+  at most
+
+      Σ_{I∩J=∅} ∏_{i∈I∪J} z_i = 3 e_4(z) = 323/4480.
+
+* **Perfect matchings.**  A triple of pairwise-disjoint blocks (a perfect
+  matching of the six coordinates) has exact intersection `∏_i z_i`.  Each such
+  triple can carry a coefficient of size at most `2` under the pointwise
+  constraint, and there are `15` perfect matchings, so their total credit is at
+  most
+
+      15 · 2 · ∏_{i=1}^{6} z_i = 1/896.
+
+* **All remaining families.**  Every remaining pair/triple/quadruple family
+  shares at least one prime coordinate, so its contribution is covered by one of
+  the six local star LPs; their total is at most
+
+      Σ_{i=1}^{6} LC_i = 19111/592620.
+
+Hence the complete one-coordinate K3 star-atom relaxation satisfies
+
+    F_K3 ≤ 323/4480 + 1/896 + 19111/592620 = 249997/2370480.
+
+With `g1 = 5989/2688`,
+
+    g_K3 = g1 − F_K3 ≥ 5989/2688 − 249997/2370480
+                    = 13417473/6321280 = 2.122587… > 2,
+
+and the residual gap above `2` is at least
+
+    g_K3 − 2 ≥ 774913/6321280 = 0.122587….
+
+### 18.3 Conclusion (M9.1)
+
+The full one-coordinate `32`-atom K3 relaxation is therefore **rigorously
+certified insufficient** at the six-prime corner: even its exact decoupling
+bound leaves `g > 2`, so it cannot close the corner and cannot yield
+`ω(N) ≥ 7`.  The obstruction is unchanged in character: no single-coordinate
+atom state certifies enough positive overlap among the `B_{ij}`.  The next
+state must couple at least two coordinates — the exact lcm-bin histogram state
+of Section 17 and the profile optimizer of M9.3.
