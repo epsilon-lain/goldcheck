@@ -1,21 +1,21 @@
-# M14 generalization: exact 3-adic fibre budget for `3^a M`
+# M14 generalization: exact 3-adic fibre budget and the `a=4` affine barrier
 
-This note extracts the part of the M14 proof that generalizes for free in the
-3-adic exponent.  It is independent of the particular affine weights used for
-`a=3`.
+This note extracts the part of M14 that generalizes for free in the 3-adic
+exponent and records an exact method-level obstruction at the next same-support
+frontier.
 
 Let
 
 `N = 3^a M`,  `gcd(3,M)=1`,
 
-and saturate a hypothetical distinct divisor-modulus covering by adding an
-arbitrary class for every missing divisor.  Work modulo `3^a` first.
+and saturate a hypothetical distinct divisor-modulus cover by adding arbitrary
+classes at missing divisor moduli.
 
-## 1. Number of surviving pure-3 fibres
+## 1. Parameterized 3-adic fibre budget
 
 The pure moduli `3,9,...,3^a` cover at most
 
-`3^(a-1) + 3^(a-2) + ... + 1 = (3^a-1)/2`
+`3^(a-1)+...+1 = (3^a-1)/2`
 
 residues modulo `3^a`.  Therefore at least
 
@@ -23,82 +23,97 @@ residues modulo `3^a`.  Therefore at least
 
 3-adic fibres survive.
 
-For `a=3`, this is `s_3=14`, recovering M14.  For `a=4`, it is `s_4=41`.
+Fix `m|M`, `m>1`, and select any `s_a` surviving fibres.  The mixed moduli
 
-## 2. Exact cross-fibre charge budget
-
-Fix `m|M`, `m>1`, and select any `s_a` distinct surviving fibres.  The mixed
-moduli
-
-`m, 3m, 9m, ..., 3^a m`
+`m,3m,...,3^a m`
 
 induce at most
 
 `k_m(r) <= 1 + sum_{j=1}^a 1[r == c_{j,m} (mod 3^j)]`
 
-classes modulo `m` inside fibre `r`.
+classes modulo `m` in fibre `r`.  For fixed `j`, at most `3^(a-j)` selected
+fibres can satisfy one prescribed residue modulo `3^j`, hence
 
-For fixed `j`, among distinct residues modulo `3^a`, at most `3^(a-j)` of the
-selected fibres can satisfy one prescribed congruence modulo `3^j`.  Hence
+`sum_r k_m(r) <= s_a + sum_{j=1}^a 3^(a-j) = 3^a`.
 
-`sum_r k_m(r) <= s_a + sum_{j=1}^a 3^(a-j)`
-
-`                 = (3^a+1)/2 + (3^a-1)/2`
-
-`                 = 3^a`.
-
-Pointwise one also has `1 <= k_m(r) <= a+1`.
-
-Grouping exact `M`-moduli by square-free support as in M14, with
+Pointwise, `1 <= k_m(r) <= a+1`.  After grouping exact `M`-moduli by
+square-free support,
 
 `b_S = sum_{sqf(m)=S} 1/m`,
 
-therefore gives the general support-charge box and budget
+we obtain the exact support-charge constraints
 
 `b_S <= q_S(r) <= (a+1)b_S`,
 
 `sum_{r=1}^{s_a} q_S(r) <= 3^a b_S`.
 
-This is the exact parameterized replacement for the M14 values
+For `a=3` this is exactly the M14 triple `(14,4,27)`.
 
-`14`, `4b_S`, `27b_S`.
-
-## 3. Immediate test on the next same-support frontier
+## 2. The next same-support frontier
 
 The next survivor with the same five-prime `M` support is
 
 `34459425 = 3^4 * 5^2 * 7 * 11 * 13 * 17`.
 
-Here `a=4`, so the M14 support box expands from `[b_S,4b_S]` to
-`[b_S,5b_S]`, while the selected-fibre count and cross-fibre budget become
+Now
 
-`s_4=41`,  `B_4=81`.
+`s_4=41`, pointwise multiplier `5`, cross-fibre budget `81`.
 
-As a quick exact stress test, keep the *same* M14 affine weights `lambda_S`.
-The exact minimum of
+So an M14-style affine support proof would need nonnegative weights `lambda_S`
+and a constant `C` such that on the whole box `[b_S,5b_S]`
 
-`rho(q) + sum_S lambda_S q_S`
+`rho(q) >= C - sum_S lambda_S q_S`
 
-on the enlarged `[b_S,5b_S]` box is
+and simultaneously
 
-`C_5 = 273899/425425`.
+`41 C - 81 sum_S lambda_S b_S > 0`.
 
-Since the already verified M14 identity is
+Keeping the old M14 weights already fails: the exact box minimum is
 
-`sum_S lambda_S b_S = 144411/425425`,
+`C_5 = 273899/425425`,
 
-the resulting summed margin is
+and the resulting margin is
 
-`41*C_5 - 81*(144411/425425)`
+`41*C_5 - 81*(144411/425425) = -3928/3575 < 0`.
 
-`= -3928/3575 < 0`.
+## 3. Stronger result: exact no-go for the entire nonnegative affine class
 
-Thus the existing M14 affine certificate does **not** automatically lift from
-`a=3` to `a=4`.  This is not a covering witness and not a no-go for the
-Clique-Shearer method; it only identifies the next exact optimization target:
-find a new affine support certificate for the enlarged factor-5 box, or prove
-that no certificate in a specified affine class can yield positive
-`41/81`-weighted margin.
+The failure is not an artifact of the old weights.
 
-This is the right next generalization problem before spending Codex budget on a
-larger search.
+`solver/m14_generalization.py` contains a 32-corner exact dual certificate.
+There are nonnegative rational coefficients `alpha_i`, all with denominator
+`227239`, such that
+
+`sum_i alpha_i = 41`,
+
+and for every one of the 31 support coordinates,
+
+`sum_i alpha_i q_S^(i) = 81 b_S`.
+
+The same exact combination of the independence-polynomial values is
+
+`sum_i alpha_i rho(q^(i)) = -316412/425425 < 0`.
+
+Therefore any affine inequality valid on the whole box,
+
+`C <= rho(q) + sum_S lambda_S q_S`,  `lambda_S >= 0`,
+
+satisfies, after multiplying those 32 corner inequalities by `alpha_i` and
+summing,
+
+`41 C - 81 sum_S lambda_S b_S <= -316412/425425 < 0`.
+
+Hence:
+
+> **No certificate in the M14 nonnegative affine support-box class can exclude
+> the `a=4` frontier using only the coarse `(41 fibres, 81 budget, factor-5
+> box)` information.**
+
+This is a method-level obstruction, not a covering construction and not a
+no-go for Clique-Shearer itself.  It says the next successful proof must retain
+more structure than the coarse per-support box and first-moment cross-fibre
+budget — for example actual 3-adic compatibility, higher cross-fibre moments,
+or a nonlinear/transport certificate.
+
+The dual obstruction is checked using exact `Fraction` arithmetic; no floating
+optimizer is trusted by the verifier.
