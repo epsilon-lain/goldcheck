@@ -261,3 +261,51 @@ elementary counting consequences of the published BFF product-set structure and
 the CRT; we classify them as **straightforward consequences / apparently
 unpublished observations**, and we do **not** claim any of them as a published
 theorem or as a solution of Erdős #7.
+
+## 7. Milestone 12 — the distortion method (primary sources)
+
+### 7.1 Hough–Nielsen Theorem 4 (the general LLL/weights layer)
+
+From **Hough–Nielsen**, *Covering systems with restricted divisibility*,
+arXiv:1703.02133, Theorem 4.  For a finite modulus collection `N`, with a
+residue set `a_n mod n` for each `n ∈ N`, if there are weights `x_p ≥ 0`
+satisfying
+
+    x_p ≥ Σ_{n ∈ N, p | n} (|a_n mod n| ∏_{p' | n}(1 + x_{p'})) / n
+
+for every prime `p`, then the uncovered set `R` satisfies
+
+    |R mod Q|/Q ≥ exp( −Σ_{n ∈ N} (|a_n| ∏_{p|n}(1+x_p)) / n ) > 0
+
+and, for every `n ∈ N`,
+
+    max_b |R ∩ (b mod n)| / |R| ≤ exp( Σ_{p|n} x_p ) / n.
+
+This theorem makes **no square-freeness assumption** on the moduli `n`.  It is
+implemented exactly in `solver/distortion.py` (`hn_weights`,
+`hn_uncovered_density`, `hn_concentration`).
+
+### 7.2 BBMST square-free geometric sieve
+
+From **Balister–Bollobás–Morris–Sahasrabudhe–Tiba**, *The Erdős–Selfridge
+problem with square-free moduli*, arXiv:1901.11465, Theorem 1.2.  With
+`S_k = [p_{k+1}]` and hyperplanes
+`A = A_1 × … × A_n` where each `A_k` is either full or a singleton, a cover of
+the box by hyperplanes forces two parallel hyperplanes.  The translation from a
+square-free modulus `d = ∏_{i∈I} p_i` to a hyperplane with fixed-coordinate set
+`I` uses square-freeness **essentially**: distinct square-free moduli correspond
+to distinct fixed-coordinate sets.  For a non-square-free modulus this
+correspondence fails, because the moduli `p^1, p^2, …` all have the same
+square-free part `p`.
+
+### 7.3 Classification for the prime-power transfer
+
+* **Hough–Nielsen Theorem 4**: remains literally valid for repeated prime
+  powers; brute-force-validated here on `N=9` and `N=27`.
+* **BBMST/Hough–Nielsen Shearer geometric sieve (Theorem 1.2 / Theorem 2)**:
+  the hyperplane/fixed-coordinate translation does **not** survive repeated
+  prime powers, because distinct moduli can share the same square-free part.
+* **Replacement quantity**: group moduli by square-free part and bound their
+  union by the McNew–Setty prime-power factor
+  `x_p = Σ_{j=1}^{v_p(N)} p^{-j}`; the missing joint/conditional structure is
+  the diagonal `p×p` lift law of `NOTES.md` Section 20.

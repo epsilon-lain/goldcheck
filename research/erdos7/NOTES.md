@@ -1321,3 +1321,50 @@ The seed proof (O4) requires a sharper upper bound on `C_H(h_Q)` than the raw
 charge `725760` versus demand `327216` for `p=3`).  The next step is to import
 the CRT overlap/diagonal structure into a tractable head-capacity bound, or
 pivot to the distorted-measure method (O5).
+
+## 23. Distortion-method transfer (Milestone 12, P1/P2)
+
+### 23.1 The Hough–Nielsen weight layer is prime-power valid
+
+Hough–Nielsen Theorem 4 is the transferable layer.  It applies to arbitrary
+moduli `n` with residue-set sizes `|a_n|`; if nonnegative weights `x_p` satisfy
+the fixed-point inequalities
+
+    x_p ≥ Σ_{n : p | n} (|a_n| ∏_{p' | n}(1+x_{p'})) / n,
+
+then the uncovered set has positive density and its residue concentration is
+bounded by
+
+    max_b |R ∩ (b mod n)| / |R| ≤ exp(Σ_{p|n} x_p) / n.
+
+Implemented in `solver/distortion.py` (`hn_weights`, `hn_uncovered_density`,
+`hn_concentration`, `hn_theorem4_bruteforce_check`).  For the distinct-covering
+case `|a_n|=1`, the full divisor-set fixed point exists exactly for
+`σ(N) < 2N`; in particular it exists for `N=3` (weight `x_3=1/2`) and fails for
+`N=12` and for the abundant seed `N*=11486475`.  The brute-force checker
+validates the concentration conclusion on the non-square-free instances `N=9`
+and `N=27`.
+
+### 23.2 What does not transfer
+
+The BBMST square-free geometric sieve (Theorem 1.2) maps a modulus to a
+hyperplane whose fixed-coordinate set is the square-free support.  That mapping
+uses square-freeness essentially: under repeated prime powers, the distinct
+moduli `p^1, p^2, …` all share the square-free part `p`, so “distinct moduli”
+no longer implies “distinct fixed-coordinate sets” and the parallel-hyperplane
+conclusion fails.
+
+### 23.3 The prime-power replacement
+
+The correct one-dimensional factor for a prime-power coordinate is the
+McNew–Setty factor
+
+    x_p = Σ_{j=1}^{v_p(N)} p^{-j},
+
+and the joint/conditional structure is exactly the diagonal top-layer law of
+Section 20:
+
+    t + s(M/e) ≡ c (mod p).
+
+This is the exact quantity that a distorted-measure stage must propagate for the
+non-square-free seed.
