@@ -190,8 +190,11 @@ def head_signature_barrier_witness() -> dict:
     * ``U2 = {2,5,10}`` has full top capacity ``4``.
 
     Both arise from valid distinct lower-layer classes below ``L=12``.  The
-    ambiguity is resolved by the next tail signature (the modulus ``18``), so
-    the minimal correlation missing from ``H={1}`` is the next head modulus.
+    feature class here is ``(|U|, h_9(U))`` (the N3 head-signature counts for
+    ``H={1}``); any N5 Bellman/potential built only from these features is
+    therefore identical on the two states while their full top capacities
+    differ.  The ambiguity is resolved by the next tail signature (the modulus
+    ``18``), so the minimal missing correlation is the next head modulus.
     """
     p, a, M = 3, 2, 4
     L = p ** (a - 1) * M
@@ -210,11 +213,13 @@ def head_signature_barrier_witness() -> dict:
         "H": H,
         "U1": sorted(U1),
         "U2": sorted(U2),
+        "len_U1": len(U1),
+        "len_U2": len(U2),
         "head_counts_U1": c1,
         "head_counts_U2": c2,
         "full_top_capacity_U1": v1,
         "full_top_capacity_U2": v2,
-        "is_barrier": c1 == c2 and v1 != v2,
+        "is_barrier": c1 == c2 and len(U1) == len(U2) and v1 != v2,
     }
 
 

@@ -1229,10 +1229,16 @@ with `h_9(U1) = h_9(U2) = {1:1, 2:1, 5:1}`, yet
 
     C_top(U1) = 5,   C_top(U2) = 4.
 
-This is a machine-checkable sharp compression barrier for the N3 head-signature
-feature: the single head modulus `e=1` cannot distinguish states with different
-full top capacity.  The minimal next correlation is the **next head modulus**
-(here `e=2`, signature `u mod 18`), which strictly separates the two states.
+Both states also have `|U1| = |U2| = 3`.  The precise feature class is therefore
+
+    (|U|, h_Q(U))   with Q = p^a lcm(H) = 9,
+
+i.e. exactly the N3 head-signature counts plus the scalar size used by any N5
+Bellman potential.  Since the two states are indistinguishable under this
+feature class but have different full top capacities, this is a machine-checkable
+sharp compression barrier: the single head modulus `e=1` cannot separate them.
+The minimal next correlation is the **next head modulus** (here `e=2`, signature
+`u mod 18`), which strictly separates the two states.
 Implementation and verifier:
 `solver/m10_profile.py::head_signature_barrier_witness`.
 

@@ -53,6 +53,7 @@ def test_head_signature_counts_are_sufficient():
 
 def test_head_signature_compression_barrier_is_realizable():
     w = head_signature_barrier_witness()
+    assert w["len_U1"] == w["len_U2"] == 3
     assert w["head_counts_U1"] == w["head_counts_U2"]
     assert w["full_top_capacity_U1"] != w["full_top_capacity_U2"]
     assert w["is_barrier"] is True
