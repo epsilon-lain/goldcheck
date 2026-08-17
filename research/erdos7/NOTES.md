@@ -1018,3 +1018,61 @@ bound leaves `g > 2`, so it cannot close the corner and cannot yield
 atom state certifies enough positive overlap among the `B_{ij}`.  The next
 state must couple at least two coordinates — the exact lcm-bin histogram state
 of Section 17 and the profile optimizer of M9.3.
+
+## 19. The first six-prime profile seed (Milestone 9, M9.2)
+
+### 19.1 The surviving support pool is finite
+
+The BFF 1987 necessary polynomial `g` is increasing in its parameters `w,z` on
+the paper's domain, and the parameters are bounded above by their
+infinite-exponent values.  Hence a six-prime support is excluded by BFF for
+**all** exponent patterns exactly when the infinite-exponent value
+
+    bff_bound(p_1, …, p_6) < 2.
+
+Because `g` is monotone in each prime (larger primes shrink `w,z`), the
+completion of a fixed prefix with the smallest available remaining primes
+maximises `g`.  A complete DFS with that pruning proves that exactly **37**
+six-prime supports can survive the BFF bound:
+
+    {3,5,7,11,13,17}, {3,5,7,11,13,19}, {3,5,7,11,13,23}, …, 
+    {3,5,7,11,17,31}, {3,5,7,11,19,23}, {3,5,7,13,17,19}.
+
+Every other six-prime support is excluded by BFF 1987 (this is a rephrasing of
+the published `ω ≥ 6` engine, **not** a new theorem).
+
+### 19.2 The exact smallest surviving candidate
+
+Over the 37 surviving supports, intersecting
+
+* the all-primes primitive condition `p_i ≤ ∏_{j≠i}(a_j+1)`,
+* abundance `σ(N) > 2N`, and
+* the direct Lemma 4.10 bound `R(N) ≥ 1`,
+
+and enumerating every exponent vector below the running minimum gives the
+genuine smallest six-prime survivor:
+
+    N* = 11486475 = 3^3 · 5^2 · 7 · 11 · 13 · 17,
+    R(N*) = 677674/675675 = 1.0029585…,
+
+with exponents `(3,2,1,1,1,1)`.  The first few survivors below `5 × 10^7` are:
+
+| N | support | exponents | R(N) |
+|---|---------|-----------|-------|
+| 11486475 | 3,5,7,11,13,17 | 3,2,1,1,1,1 | 677674/675675 |
+| 34459425 | 3,5,7,11,13,17 | 4,2,1,1,1,1 | 293467/289575 |
+| 38513475 | 3,5,7,11,13,19 | 4,2,1,1,1,1 | 38894741/38513475 |
+| 46621575 | 3,5,7,11,13,23 | 4,2,1,1,1,1 | 46839077/46621575 |
+
+Implementation: `solver/omega6_seed.py` (`omega6_support_pool`,
+`omega6_survivors`, `smallest_omega6_survivor`); tests in
+`solver/test_omega6_seed.py`.  This is a finite discovery seed only; it is
+**not** a claim that `N*` is a covering number.
+
+### 19.3 The next step (M9.3)
+
+`N*` is the smallest instance where the current filters stop: it is abundant,
+satisfies the all-primes condition, has `R(N*) > 1`, and its support survives
+the BFF forest bound.  The profile optimizer must now show either a strict
+Hall/profile deficit for every realizable lower-uncovered set, or a precise
+obstruction showing what extra state is missing.
