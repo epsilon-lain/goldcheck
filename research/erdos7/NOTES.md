@@ -1258,3 +1258,66 @@ Milestone 10 has established:
 The full CEGAR/Bellman seed verdict (N4–N6) remains open; the barrier above is
 the precise reason a nontrivial lossy head cannot be evaluated without deciding
 which tail/coarser correlations to retain.
+
+## 22. Robust lossy abstraction (Milestone 11, O0–O4)
+
+### 22.1 Exact-capacity compression is not the relevant criterion (O0)
+
+For a head `H` with `Q = p^a lcm(H)`, the feature
+
+    φ_H(U) = (|U|, h_Q(U))
+
+is not a complete statistic for the full top capacity (Section 21.4), but that
+does not make it useless.  Define the sound abstract capacity envelope
+
+    Cbar_H(|U|, h_Q) := C_H(h_Q) + Σ_{e∉H} min(M/e, |U|).
+
+If `Cbar_H(φ_H(U)) < p|U|` for every reachable abstract state, then no covering
+exists, even though different concrete states in one cell may have different
+exact capacities.  For the Milestone 10 `N=36, H={1}` witness cell
+
+    (|U|, h_9) = (3, {1:1, 2:1, 5:1}),
+
+one has `C_H = 2` and tail budget `min(2,3)+min(1,3)=3`, so
+
+    Cbar_H = 5 < 9 = p|U|.
+
+The envelope therefore kills the whole cell, and “different exact capacities”
+is not a terminal obstruction.  This is implemented and verified for every
+realizable state in `solver/m11_profile.py` and `solver/test_m11_profile.py`.
+
+### 22.2 Seed arithmetic (O2)
+
+Independently recomputed McNew–Setty lower bounds for the lower period:
+
+| decomposition | M | L | δ(L) | p·δ(L) |
+|---|---|---|---|---|
+| p=3, a=3 | 425425 | 3828825 | 109072 | 327216 |
+| p=5, a=2 | 459459 | 2297295 | 62067 | 310335 |
+
+The near-full divisor-closed heads have raw tail budget `24192` in both
+decompositions: `D0 = 85085` (p=3) and `D0 = 153153` (p=5).
+
+### 22.3 The abstraction is exact on its head, and is an upper bound overall (O1)
+
+`C_H(h_Q)` is a well-defined function of the histogram alone and is computed
+without reconstructing `U`; `Cbar_H` is a sound upper bound on the full top
+capacity for every realizable `U`.  Exhaustive small-instance checks confirm
+both properties.
+
+### 22.4 A complete toy CEGAR success (O4 toy)
+
+For the odd non-covering instance `N = 45 = 3^2 · 5` (decomposition `p=3,a=2,
+M=5,L=15`), the single-head abstraction `H={1}` already proves every realizable
+lower-layer state is non-coverable: the exhaustive verifier
+`solver/m11_profile.py::abstract_noncovering_certificate` returns
+`all_killed = True`.  This is a toy, not the seed; it validates the CEGAR
+envelope machinery end-to-end.
+
+### 22.5 Remaining seed bottleneck
+
+The seed proof (O4) requires a sharper upper bound on `C_H(h_Q)` than the raw
+`Σ M/e` head charge, which is far too large at the near-full head (raw head
+charge `725760` versus demand `327216` for `p=3`).  The next step is to import
+the CRT overlap/diagonal structure into a tractable head-capacity bound, or
+pivot to the distorted-measure method (O5).
