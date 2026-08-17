@@ -21,8 +21,9 @@ def test_m26_exact_minimal_antichain():
     assert profile_closed_before_m26((2,2,2,2,2,2)) is True
     assert profile_closed_before_m26((20,1,1,1,1,1)) is True
     assert minimal_frontier_dominator((9,2,1,1,1,1))==(5,2,1,1,1,1)
-    assert minimal_frontier_dominator((4,8,1,1,1,1))==(4,4,1,1,1,1)
-    assert minimal_frontier_dominator((3,2,7,1,1,1))==(3,2,2,1,1,1)
+    assert minimal_frontier_dominator((4,4,3,1,1,1))==(4,4,1,1,1,1)
+    assert minimal_frontier_dominator((3,2,7,1,1,1))==(5,2,1,1,1,1)
+    assert minimal_frontier_dominator((3,3,2,1,1,1))==(3,2,2,1,1,1)
 
 
 def test_m26_placement_exception_counts():
