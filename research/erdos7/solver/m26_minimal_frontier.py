@@ -85,7 +85,7 @@ def placement_scan(profile):
     assignments=tuple(sorted(set(permutations(p))))
     values={a:direct_bound(MINIMAL_ODD_PRIMES,a) for a in assignments}
     exceptions=tuple(a for a in assignments if values[a]>=1)
-    assert exceptions==EXCEPTIONAL_PLACEMENTS[p]
+    assert set(exceptions)==set(EXCEPTIONAL_PLACEMENTS[p])
     assert {a:values[a] for a in exceptions}==EXPECTED_MINIMAL_VALUES[p]
     killed={a:v for a,v in values.items() if a not in exceptions}
     amax=max(killed,key=killed.get); vmax=killed[amax]
