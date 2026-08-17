@@ -2,6 +2,7 @@
 
 from covering import divisors
 from distortion import (
+    hn_225_contradiction_exact,
     hn_theorem4_bruteforce_check,
     hn_uncovered_density,
     prime_support,
@@ -23,3 +24,12 @@ def test_hn_weights_reproduce_small_cases():
 def test_hn_theorem4_is_valid_for_prime_powers():
     assert hn_theorem4_bruteforce_check(9) is True
     assert hn_theorem4_bruteforce_check(27) is True
+
+
+def test_q0_abundance_is_not_equivalent_to_hn_feasibility():
+    # sigma(225) = 403 < 450, but the full-divisor HN system has no
+    # super-solution.  This is the mandatory Q0 audit correction.
+    assert hn_225_contradiction_exact() is True
+    primes = prime_support(225)
+    moduli = [d for d in divisors(225) if d > 1]
+    assert hn_uncovered_density(primes, moduli)["exists"] is False

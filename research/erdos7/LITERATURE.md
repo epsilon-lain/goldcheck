@@ -283,7 +283,10 @@ and, for every `n ∈ N`,
 
 This theorem makes **no square-freeness assumption** on the moduli `n`.  It is
 implemented exactly in `solver/distortion.py` (`hn_weights`,
-`hn_uncovered_density`, `hn_concentration`).
+`hn_uncovered_density`, `hn_concentration`).  A fixed point is a sufficient
+non-covering certificate but is **not** equivalent to `σ(N) < 2N`: the exact
+counterexample `N=225=3^2·5^2` has `σ(225)=403<450` yet admits no
+super-solution (`solver/distortion.py::hn_225_contradiction_exact`).
 
 ### 7.2 BBMST square-free geometric sieve
 

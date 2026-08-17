@@ -182,8 +182,51 @@ def hn_theorem4_bruteforce_check(N: int) -> bool:
     return True
 
 
+def hn_225_contradiction_exact() -> bool:
+    """Exact Q0 correction: ``N=225`` is deficient but has no HN super-solution.
+
+    For the full nontrivial divisor set of ``225 = 3^2 * 5^2`` the weight
+    inequalities are equivalent to
+
+        x >= f(y) = (124 + 24y)/(101 - 24y),
+        y >= g(x) = (26 + 8x)/(49 - 8x).
+
+    The denominator of ``g`` and ``x >= f(y)`` force ``y < 1319/456``; on that
+    interval ``g`` is increasing and
+
+        g(f(y)) - y = (456 y^2 - 1463 y + 1206)/(1319 - 456y) > 0,
+
+    whose numerator has discriminant ``-59375 < 0``.  Hence every attempted
+    super-solution satisfies ``y >= g(x) >= g(f(y)) > y``, a contradiction.
+    """
+    from fractions import Fraction
+
+    def f(y: Fraction) -> Fraction:
+        return (Fraction(124) + 24 * y) / (Fraction(101) - 24 * y)
+
+    def g(x: Fraction) -> Fraction:
+        return (Fraction(26) + 8 * x) / (Fraction(49) - 8 * x)
+
+    # Verify the rational identity g(f(y)) = (1206 - 144 y)/(1319 - 456 y)
+    # at three sample points.
+    for val in (Fraction(1, 3), Fraction(1, 2), Fraction(2, 1)):
+        assert g(f(val)) == (Fraction(1206) - 144 * val) / (
+            Fraction(1319) - 456 * val
+        )
+
+    disc = 1463 * 1463 - 4 * 456 * 1206
+    assert disc == -59375
+    assert disc < 0
+    assert 456 > 0
+    ymax = Fraction(1319, 456)
+    assert ymax < Fraction(101, 24)
+    assert ymax < Fraction(49, 8) / 1
+    return True
+
+
 __all__ = [
     "hn_concentration",
+    "hn_225_contradiction_exact",
     "hn_theorem4_bruteforce_check",
     "hn_uncovered_density",
     "hn_weights",

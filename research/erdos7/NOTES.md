@@ -1338,12 +1338,14 @@ bounded by
     max_b |R ∩ (b mod n)| / |R| ≤ exp(Σ_{p|n} x_p) / n.
 
 Implemented in `solver/distortion.py` (`hn_weights`, `hn_uncovered_density`,
-`hn_concentration`, `hn_theorem4_bruteforce_check`).  For the distinct-covering
-case `|a_n|=1`, the full divisor-set fixed point exists exactly for
-`σ(N) < 2N`; in particular it exists for `N=3` (weight `x_3=1/2`) and fails for
-`N=12` and for the abundant seed `N*=11486475`.  The brute-force checker
-validates the concentration conclusion on the non-square-free instances `N=9`
-and `N=27`.
+`hn_concentration`, `hn_theorem4_bruteforce_check`).  A full divisor-set
+super-solution is a sufficient certificate that `N` is non-covering, but it is
+**not** equivalent to abundance: for `N=3` the fixed point is `x_3=1/2` and for
+`N=105` a fixed point exists, yet for `N=225=3^2·5^2` one has
+`σ(225)=403<450` and **no** super-solution exists (`hn_225_contradiction_exact`).
+It also fails for `N=12` and the abundant seed `N*=11486475`.  The brute-force
+checker validates the concentration conclusion on the non-square-free instances
+`N=9` and `N=27`.
 
 ### 23.2 What does not transfer
 
@@ -1368,3 +1370,49 @@ Section 20:
 
 This is the exact quantity that a distorted-measure stage must propagate for the
 non-square-free seed.
+
+## 24. Staged 3-adic HN program (Milestone 13)
+
+### 24.1 Q0 audit correction
+
+The earlier statement that the full-divisor Hough–Nielsen weight fixed point
+exists iff `σ(N) < 2N` is **false**.  The exact counterexample is
+
+    N = 225 = 3^2 · 5^2,   σ(225) = 403 < 450,
+
+yet the full nontrivial divisor set has no super-solution.  Writing
+`A=1/3+1/9=4/9` and `B=1/5+1/25=6/25`, any super-solution `(x,y)` would satisfy
+
+    x ≥ f(y)=(124+24y)/(101−24y),
+    y ≥ g(x)=(26+8x)/(49−8x),
+
+and the denominator conditions force `y < 1319/456`; on that interval
+
+    g(f(y)) − y = (456y^2 −1463y +1206)/(1319−456y) > 0,
+
+whose numerator has discriminant `−59375`.  Hence `y ≥ g(x) ≥ g(f(y)) > y`, a
+contradiction.  Implemented exactly in
+`solver/distortion.py::hn_225_contradiction_exact` and regression-tested in
+`solver/test_distortion.py`.
+
+### 24.2 First-stage 27-fiber adversary (Q2)
+
+For `N*=11486475` with 3-adic base period `27` and `M=425425`, the pure moduli
+`3,9,27` remove at most `9+3+1=13` base residues, so at least `14` residues
+`r mod 27` survive.  For each `m|M`, `m>1`, the original moduli
+`m,3m,9m,27m` induce a safe per-fiber load
+
+    k_m(r) ≤ 1 + 1[r≡c_{1,m} (mod 3)] + 1[r≡c_{2,m} (mod 9)] + 1[r=c_{3,m}],
+
+with duplicate induced residues only helping.  `solver/hn_staged.py`
+implements the `729` pure-3 choices, verifies the minimum survivor count is
+exactly `14`, and computes the exact worst-case total load over the 3-adic
+residue adversary; `verify_pure3_bruteforce` independently re-checks the closed
+form by exhaustive enumeration.
+
+### 24.3 Remaining work
+
+The good-fiber theorem (Q3) requires Hough–Nielsen Lemmas 5 and 6 and
+Theorem 8 (`B_infty`, `B_{2,0}`, `B_op(M)`, `theta`) specialized to the five
+new primes `{5,7,11,13,17}`.  That reconstruction has not been completed; the
+finite-fiber load profile above is the exact input it will consume.
