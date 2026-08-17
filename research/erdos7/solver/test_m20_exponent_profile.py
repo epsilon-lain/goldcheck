@@ -37,7 +37,9 @@ def test_m20_three_proof_branches():
     assert proof_branch((3,5,7,11,13,17),(4,2,1,1,1,1))=="M19-four-parameter"
     assert proof_branch((3,5,7,11,13,17),(4,1,2,1,1,1))=="McNew-Setty-noncanonical-placement"
     assert proof_branch((3,7,11,13,17,19),(4,2,1,1,1,1))=="McNew-Setty-canonical-offbase"
-    assert proof_branch((19,3,13,7,11,17),(1,4,1,2,1,1))=="McNew-Setty-noncanonical-placement"
+    # Unsorted input: exponents remain attached to their primes.  After sorting
+    # this is (3,7,11,13,17,19) with placement (4,1,2,1,1,1).
+    assert proof_branch((19,3,13,7,11,17),(1,4,1,1,2,1))=="McNew-Setty-noncanonical-placement"
 
 def test_m20_profile_audit():
     result=exponent_profile_audit()
