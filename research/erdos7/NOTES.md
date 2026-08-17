@@ -1150,3 +1150,105 @@ exponential lower-layer optimization over realizable `U`.  A compressed exact
 profile optimizer would have to solve the diagonal `p×p` fiber-cover problem
 without enumerating `U`; no such compression is available from cardinality data
 alone.
+
+## 21. Lossy profile machinery and the compression barrier (Milestone 10)
+
+### 21.1 The first-order dual is exactly abundance (N0)
+
+For the covering problem on `Z/NZ` with distinct moduli `d | N`, the first-order
+Farkas/weighted-set-cover dual is:
+
+    y_x ≥ 0,  z_d ≥ 0,
+    Σ_{x ≡ a (mod d)} y_x ≤ z_d    for every d | N, d > 1, and every a mod d.
+
+Any valid distinct-modulus cover then gives `Σ_x y_x ≤ Σ_{d used} z_d`.
+
+**Theorem.**  The translation-invariant first-order dual can prove `N` is not
+covering exactly when `σ(N) < 2N`; for abundant `N` its optimum is `0`, and for
+deficient `N` it is unbounded.
+
+*Proof.*  The constraint system and the objective `Σ_x y_x` are invariant under
+translating the point weights `y`, so the optimum may be taken with
+`y_x = c` for all `x`.  The constraints become `c N/d ≤ z_d`.  Minimising
+`Σ z_d` subject to those constraints gives
+
+    Σ_x y_x − Σ_d z_d
+      = cN − Σ_{d|N,d>1} cN/d
+      = cN (2 − σ(N)/N)
+      = c (2N − σ(N)).
+
+This is positive for some `c > 0` iff `σ(N) < 2N`, and is otherwise maximised at
+`c = 0`.  ∎  Hence no generic point-weight certificate can exceed the raw
+abundance obstruction; in particular it cannot touch the abundant seed
+`N* = 11486475`.  Implementation: `solver/m10_profile.py::first_order_dual_status`.
+
+### 21.2 Safe head/tail truncation (N1)
+
+For `N = p^a M`, partition the top divisors `e | M` into a head `H` and tail
+`T`.  Let `C_H(U)` be the maximum number of lifts coverable by top moduli
+`p^a e` with `e ∈ H`, and let `C_top(U)` use all `e`.  Then
+
+    C_top(U) ≤ C_H(U) + Σ_{e∈T} min(M/e, |U|).                    (T)
+
+*Proof.*  The union over all top classes is contained in the union over the
+head classes together with the union over the tail classes; the tail union has
+size at most the sum of the sizes of its classes.  A tail class `mod p^a e`
+contains `M/e` points of `Z/NZ` and meets at most one lift of each base, hence
+at most `min(M/e, |U|)` of the `p|U|` lifted points.  ∎  The point of (T) is
+that the expensive `e = M` modulus has capacity only `1`; we may pay it as a
+tail budget rather than retain `h_L`.
+
+### 21.3 The exact head signature (N3)
+
+For a head `H ⊆ {e : e | M}`, every retained top class `r mod p^a e` depends on
+the base `u` only through `u mod p^a e` (Section 20.1).  Therefore the coarsest
+equivalence relation on bases that preserves all retained top-class incidences
+is
+
+    u ∼ v  ⟺  u ≡ v  (mod p^a · lcm(H)).
+
+The counts of `U` in the residue classes modulo `Q = p^a · lcm(H)` are thus a
+lossless state for the head evaluation: `C_H(U)` can be computed from
+
+    h_Q(c; U) = |{u ∈ U : u ≡ c (mod Q)}|,
+
+without knowing the individual points of `U`.  This is implemented and
+brute-force-validated in `solver/m10_profile.py` (`head_signature_counts`,
+`max_top_coverage`).
+
+### 21.4 The compression barrier (C)
+
+For `N = 36 = 3^2 · 4` (`p=3,a=2,M=4,L=12`) and the lossy head `H = {1}`
+(`Q = 9 < L`), the following two states are both **realizable** by valid
+distinct lower-layer classes and have identical head-signature counts:
+
+    U1 = {5,10,11}  (lower classes mod 3,4,6,12: 0,0,1,2),
+    U2 = {2,5,10}   (lower classes mod 3,4,6,12: 0,0,1,11),
+
+with `h_9(U1) = h_9(U2) = {1:1, 2:1, 5:1}`, yet
+
+    C_top(U1) = 5,   C_top(U2) = 4.
+
+This is a machine-checkable sharp compression barrier for the N3 head-signature
+feature: the single head modulus `e=1` cannot distinguish states with different
+full top capacity.  The minimal next correlation is the **next head modulus**
+(here `e=2`, signature `u mod 18`), which strictly separates the two states.
+Implementation and verifier:
+`solver/m10_profile.py::head_signature_barrier_witness`.
+
+### 21.5 Status
+
+Milestone 10 has established:
+
+* N0: the generic first-order dual is exactly the abundance obstruction.
+* N1: a safe head/tail truncation with tail budget `Σ min(M/e, |U|)`.
+* N2: `solver/m10_profile.py::head_candidates` enumerates divisor-closed heads
+  by signature modulus and tail budget (48 heads for the seed `p=3` direction).
+* N3: the exact head signature `u mod p^a lcm(H)` and its sufficiency for
+  `C_H(U)`.
+* C: a realizable compression barrier for the lossy head-signature feature,
+  with the next head modulus identified as the minimal missing correlation.
+
+The full CEGAR/Bellman seed verdict (N4–N6) remains open; the barrier above is
+the precise reason a nontrivial lossy head cannot be evaluated without deciding
+which tail/coarser correlations to retain.
