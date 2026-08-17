@@ -1076,3 +1076,77 @@ satisfies the all-primes condition, has `R(N*) > 1`, and its support survives
 the BFF forest bound.  The profile optimizer must now show either a strict
 Hall/profile deficit for every realizable lower-uncovered set, or a precise
 obstruction showing what extra state is missing.
+
+## 20. The diagonal top-layer law and the insufficiency of scalar profiles (M9.3/M9.6)
+
+### 20.1 Exact lift-coverage law
+
+Let `N = p^a M`, `gcd(p,M)=1`, `L = N/p = p^{a−1}M`, and let `U ⊆ Z/LZ` be the
+lower-uncovered set.  A top modulus is `p^a e` for `e | M`.  Fix a top class
+`r mod p^a e`; write `d = p^{a−1}e`, `b = r mod d`, `c = (r−b)/d`, and
+`m = M/e`.  For a base `u ≡ b (mod d)`, put `t = (u−b)/d`.  Then the unique
+lift `u + sL` that meets the top class is given by the **diagonal law**
+
+    t + s·m ≡ c  (mod p),        s ≡ m^{−1}(c − t)  (mod p).
+
+*Proof.*  `u + sL ≡ r (mod p^a e)` is
+`b + t p^{a−1}e + s p^{a−1}M ≡ b + c p^{a−1}e (mod p^a e)`.  Cancelling
+`p^{a−1}e` gives `t + s(M/e) ≡ c (mod p)`.  Since `gcd(p,M)=1`,
+`m = M/e` is invertible modulo `p`, giving the formula.  ∎
+
+Thus, inside one `p × p` CRT fiber, a top class is a **diagonal**, not a
+horizontal row of constant lift color.  This is the exact primitive implemented
+and brute-force-validated in `solver/profile_optimizer.py`
+(`lift_color`, `top_class_lifts`, `brute_top_class_lifts`).
+
+### 20.2 The scalar profile is an insufficient state
+
+The Task-F1 scalar profile
+
+    μ_{p^{a−1}e}(U) = max_b |{ u ∈ U : u ≡ b (mod p^{a−1}e) }|
+
+records only a cardinality for each top projection modulus.  It is **not** a
+sufficient statistic for top-layer coverability.  The machine-checkable witness
+in `solver/profile_optimizer.py::scalar_profile_insufficient_witness` is
+
+    p = 3,  a = 2,  M = 4,  L = 12,
+    U1 = {0},  U2 = {0,1}.
+
+Both have identical scalar profile
+
+    (μ_3, μ_6, μ_12) = (1, 1, 1),
+
+but the top layer (`moduli 9, 18, 36`) covers all `p|U1| = 3` lifts of `U1` and
+cannot cover all `p|U2| = 6` lifts of `U2`.  This is exact, not heuristic: the
+coverability decision for each set is by exhaustive top-layer residue choice and
+is independently re-checked by the brute-force lift enumerator.
+
+### 20.3 Minimal augmentation
+
+The lcm-bin histogram `h_d(b;U)` distinguishes the two witnesses because
+`h_12(0;U1)=1, h_12(1;U1)=0` while `h_12(0;U2)=h_12(1;U2)=1`.  Thus the
+minimal information missing from the scalar profile is the **joint lcm-bin
+occupancy**, i.e. the histogram state of Section 17.  In the presence of the
+full top-layer query family `{p^{a−1}e : e | M}`, that family is lcm-closed
+only if it includes `L` (take `e = M`); hence the exact histogram state contains
+`h_L`, which is precisely the indicator of `U`.  The diagonal law shows this
+degeneration is unavoidable for *exact* top-layer feasibility: a top class
+couples the base index `t` and the lift color `s`, so no cardinality-only state
+shorter than `U` itself can decide coverability in general.
+
+### 20.4 Status
+
+Milestone 9 has reached the following exact, machine-checked facts:
+
+* M9.1: the full one-coordinate K3 32-atom relaxation is certified
+  insufficient (Section 18).
+* M9.2: the first six-prime profile seed is `11486475` (Section 19).
+* M9.3/M9.6 primitive: the top-layer lift-coverage law is diagonal, and the
+  scalar Task-F1 profile is insufficient; the lcm-bin histogram is the minimal
+  augmentation, and exactness forces the state to retain `h_L`, i.e. `U`.
+
+The remaining bottleneck is therefore **not** a missing primitive law but the
+exponential lower-layer optimization over realizable `U`.  A compressed exact
+profile optimizer would have to solve the diagonal `p×p` fiber-cover problem
+without enumerating `U`; no such compression is available from cardinality data
+alone.
